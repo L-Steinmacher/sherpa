@@ -11,6 +11,11 @@ model User {
   id    String @id @default(cuid())
   email String @unique
 
+  imageUrl String?
+
+  hiker Hiker?
+  sherpa Sherpa?
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -35,4 +40,58 @@ model Note {
 
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   userId String
+}
+
+model Trail {
+  id String @id @default(cuid())
+  name String
+  discription String
+  length Int
+  routeType String
+  elevation String
+  latitude    Float
+  longitude   Float
+
+  hikes Hike[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+model Hike {
+  id    String @id @default(cuid())
+
+  trail Trail @relation(fields: [trailId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  trailId String
+
+  rating   Int
+
+  imageUrl String
+
+  hiker Hiker @relation(fields: [hikerId], references: [userId], onDelete: Cascade, onUpdate: Cascade )
+  hikerId String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Hiker {
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  userId String @unique
+
+  hikes Hike []
+
+  bio String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Sherpa {
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  userId String @unique
+
+  bio String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
