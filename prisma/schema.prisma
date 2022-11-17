@@ -13,14 +13,46 @@ model User {
 
   imageUrl String?
 
+  contactInfo ContactInfo?
+
   hiker Hiker?
   sherpa Sherpa?
+  admin Admin?
+
+  chats Chat[]
+  messages Message[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   password Password?
   notes    Note[]
+}
+
+model Admin {
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  userId String @unique
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+}
+
+model ContactInfo {
+  id String @unique @default(cuid())
+  email String?
+  phone String?
+  address String?
+  city String?
+  state String?
+  zip String?
+  country String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  userId String @unique
 }
 
 model Password {
@@ -48,7 +80,7 @@ model Trail {
   discription String
   length Int
   routeType String
-  elevation String
+  elevation Int
   latitude    Float
   longitude   Float
 
@@ -57,6 +89,7 @@ model Trail {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
 model Hike {
   id    String @id @default(cuid())
 
@@ -64,11 +97,14 @@ model Hike {
   trailId String
 
   rating   Int
+  description String
 
   imageUrl String
 
   hiker Hiker @relation(fields: [hikerId], references: [userId], onDelete: Cascade, onUpdate: Cascade )
   hikerId String
+
+  adventure Adventure?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -79,6 +115,9 @@ model Hiker {
   userId String @unique
 
   hikes Hike []
+  adventures Adventure []
+  reviews HikerReview[]
+  sherpaReviews SherpaReview[]
 
   bio String?
 
@@ -91,6 +130,92 @@ model Sherpa {
   userId String @unique
 
   bio String?
+  reviews SherpaReview[]
+  hikerReviews HikerReview[]
+  adventures Adventure[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Adventure {
+  id String @id @unique @default(cuid())
+  startDate DateTime
+  endDate DateTime
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  hiker Hiker @relation(fields: [hikerId], references: [userId], onDelete: Cascade, onUpdate: Cascade)
+  hikerId String
+
+  sherpa Sherpa @relation(fields: [sherpaId], references: [userId], onDelete: Cascade, onUpdate: Cascade)
+  sherpaId String
+
+  hike Hike @relation(fields: [hikeId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  hikeId String @unique
+
+  hikerReview HikerReview?
+  sherpaReview SherpaReview?
+}
+
+model Chat {
+  id String @id @unique @default(cuid())
+
+  users User[]
+  messages Message[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Message {
+  id String @id @unique @default(cuid())
+  content String
+
+  chat Chat @relation(fields: [chatId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  chatId String
+
+  sender User @relation(fields: [senderId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  senderId String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model HikerReview {
+  id String @id @unique @default(cuid())
+
+  hiker Hiker @relation(fields: [hikerId], references: [userId], onDelete: Cascade, onUpdate: Cascade)
+  hikerId String
+
+  sherpa Sherpa @relation(fields: [sherpaId], references: [userId], onDelete: Cascade, onUpdate: Cascade)
+  sherpaId String
+
+  rating Int
+  description String
+
+  adventure Adventure @relation(fields: [adventureId], references: [id], onDelete: Cascade)
+  adventureId String @unique
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model SherpaReview {
+  id String @id @unique @default(cuid())
+
+  hiker Hiker @relation(fields: [hikerId], references: [userId], onDelete: Cascade, onUpdate: Cascade)
+  hikerId String
+
+  sherpa Sherpa @relation(fields: [sherpaId], references: [userId], onDelete: Cascade, onUpdate: Cascade)
+  sherpaId String
+
+  rating Int
+  description String
+
+  adventure Adventure @relation(fields: [adventureId], references: [id], onDelete: Cascade)
+  adventureId String @unique
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
