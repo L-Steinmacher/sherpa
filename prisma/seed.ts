@@ -4,17 +4,20 @@ import bcrypt from "bcryptjs";
 const prisma = new PrismaClient();
 
 async function seed() {
-  const email = "rachel@remix.run";
+  console.log('Seeding the database... 🌱')
+  console.time('Database seeded 🌱')
+  const email = "indy@sherpa.dev";
 
   // cleanup the existing database
   await prisma.user.delete({ where: { email } }).catch(() => {
     // no worries if it doesn't exist yet
   });
 
-  const hashedPassword = await bcrypt.hash("racheliscool", 10);
+  const hashedPassword = await bcrypt.hash("indyiscool", 10);
 
   const user = await prisma.user.create({
     data: {
+      username: "indy",
       email,
       password: {
         create: {
@@ -23,6 +26,7 @@ async function seed() {
       },
     },
   });
+  // c
 
   await prisma.note.create({
     data: {
