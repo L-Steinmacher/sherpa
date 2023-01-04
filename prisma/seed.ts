@@ -9,22 +9,24 @@ const prisma = new PrismaClient();
 async function seed() {
   console.log('Seeding the database... 🌱')
   console.time('Database seeded 🌱')
-  const email = "indy@sherpa.dev";
-
   // cleanup the existing database
-  await prisma.user.delete({ where: { email } }).catch(() => {
-    // no worries if it doesn't exist yet
-  });
+  console.time('Cleaning up the database... 🧹')
+  await prisma.user.deleteMany({where: {}});
+  await prisma.admin.deleteMany({where: {}});
+  await prisma.hiker.deleteMany({where: {}});
+  await prisma.sherpa.deleteMany({where: {}});
+  await prisma.trail.deleteMany({where: {}});
+  await prisma.hike.deleteMany({where: {}});
+  await prisma.adventure.deleteMany({where: {}});
+  await prisma.chat.deleteMany({where: {}});
 
-  const hashedPassword = await bcrypt.hash("indyiscool", 10);
+  console.timeEnd('Cleaned up the database... 🧹')
 
-
-
-  // create 100 users in a function using seed-utils
+  // create 200 users in a function using seed-utils
   console.time('Creating Users 👤')
 
   const users = await Promise.all(
-    Array.from({ length: 100 },async () => {
+    Array.from({ length: 200 },async () => {
       const userData = await createUser();
       const user = await prisma.user.create({
         data: {
@@ -66,6 +68,7 @@ async function seed() {
 
   // console Admins
   console.time('Creating Admins... 👩‍💼')
+
   console.timeEnd('Created Admins... 👩‍💼')
 
   console.time('Creating Hikers... 🥾')
