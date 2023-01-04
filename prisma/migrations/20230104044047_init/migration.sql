@@ -55,7 +55,7 @@ CREATE TABLE "Note" (
 CREATE TABLE "Trail" (
     "id" TEXT NOT NULL PRIMARY KEY,
     "name" TEXT NOT NULL,
-    "discription" TEXT NOT NULL,
+    "description" TEXT NOT NULL,
     "length" INTEGER NOT NULL,
     "routeType" TEXT NOT NULL,
     "elevation" INTEGER NOT NULL,
