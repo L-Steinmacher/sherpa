@@ -79,7 +79,7 @@ model Note {
 model Trail {
   id String @id @default(cuid())
   name String
-  discription String
+  description String
   length Int
   routeType String
   elevation Int
