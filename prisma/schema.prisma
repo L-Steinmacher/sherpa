@@ -87,6 +87,7 @@ model Trail {
   longitude   Float
 
   hikes Hike[]
+  sherpas SherpaTrail[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -131,10 +132,25 @@ model Sherpa {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   userId String @unique
 
+  trails SherpaTrail[]
+
   bio String?
   reviews SherpaReview[]
   hikerReviews HikerReview[]
   adventures Adventure[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model SherpaTrail {
+  id String @id @default(cuid())
+
+  trail Trail @relation(fields: [trailId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  trailId String
+
+  sherpa Sherpa @relation(fields: [sherpaId], references: [userId], onDelete: Cascade, onUpdate: Cascade)
+  sherpaId String
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
