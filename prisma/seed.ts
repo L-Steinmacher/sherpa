@@ -9,9 +9,9 @@ const prisma = new PrismaClient();
 
 async function seed() {
   console.log('Seeding the database... 🌱')
-  console.time('Database seeded 🌱')
+  console.time(`Database has been seeded... 🌱`)
   // cleanup the existing database
-  console.time('Cleaning up the database... 🧹')
+  console.time('Cleaned up the database... 🧹')
   await prisma.user.deleteMany({where: {}});
   await prisma.admin.deleteMany({where: {}});
   await prisma.hiker.deleteMany({where: {}});
@@ -23,11 +23,30 @@ async function seed() {
 
   console.timeEnd('Cleaned up the database... 🧹')
 
+  console.time('Created Trails... 🚶‍♀️')
+  const trails = await Promise.all(
+    Array.from({ length: 100 }, async () => {
+      const trail = await prisma.trail.create({
+        data: {
+          name: faker.lorem.words(),
+          description: faker.lorem.paragraph(1),
+          latitude: Number(faker.address.latitude()),
+          longitude: Number(faker.address.longitude()),
+          routeType: faker.helpers.arrayElement(['Easy', 'Moderate', 'Hard']),
+          length: faker.datatype.number({min: 1, max: 20}),
+          elevation: faker.datatype.number({min: 100, max: 10000}),
+        },
+      })
+      return trail;
+    })
+  )
+  console.timeEnd('Created Trails... 🚶‍♀️')
   // create 200 users in a function using seed-utils
-  console.time('Creating Users 👤')
+  console.time('Created Users 👤')
+  const totalUsers = 200;
 
   const users = await Promise.all(
-    Array.from({ length: 200 },async () => {
+    Array.from({ length:totalUsers },async () => {
       const userData = await createUser();
       const user = await prisma.user.create({
         data: {
@@ -70,26 +89,40 @@ async function seed() {
   });
   console.timeEnd('Created Users.. 👤')
 
-
-
   console.time('Creating Hikers... 🥾')
-  const hikerIds = users.slice(0,180).map((user) => user.id);
+  const totalHikers = totalUsers * 0.9;
+  const hikerIds = users.slice(0, totalHikers).map((user) => user.id);
 
   const hikers = Promise.all(
     hikerIds.map(async (id) => {
+      const hikes = faker.datatype.number({min: 1, max: 10});
+
       const hiker = await prisma.hiker.create({
         data: {
           userId: id,
-          bio: faker.lorem.paragraph(),
+          bio: faker.lorem.paragraph(1),
+          hikes: {
+            create: await Promise.all(
+              Array.from({ length: hikes }, async () => {
+                return{
+                  hikerId: id,
+                  trailId: faker.helpers.arrayElement(trails).id,
+                  description: faker.lorem.paragraph(1),
+                  imageUrl: faker.image.nature(),
+                  rating: faker.datatype.number({min: 1, max: 5}),
+                }
+              })
+            )
+          },
         },
-      })
+        })
       return hiker;
     })
   )
 
   console.timeEnd('Created Hikers... 🥾')
 
-  console.time('Creating Sherpas... 🧗‍♀️')
+  console.time('Created Sherpas... 🧗‍♀️')
   const sherpaIds = users.slice(0,50).map((user) => user.id);
   const sherpas = Promise.all(
     sherpaIds.map(async (id) => {
@@ -118,42 +151,20 @@ async function seed() {
   )
   console.timeEnd('Created Admins... 👩‍💼')
 
-  console.time('Creating Trails... 🚶‍♀️')
-  const trails = await Promise.all(
-    Array.from({ length: 100 }, async () => {
-      const trail = await prisma.trail.create({
-        data: {
-          name: faker.lorem.words(),
-          description: faker.lorem.paragraph(1),
-          latitude: Number(faker.address.latitude()),
-          longitude: Number(faker.address.longitude()),
-          routeType: faker.helpers.arrayElement(['Easy', 'Moderate', 'Hard']),
-          length: faker.datatype.number({min: 1, max: 20}),
-          elevation: faker.datatype.number({min: 100, max: 10000}),
-        },
-      })
-      return trail;
-    })
-  )
-  console.timeEnd('Created Trails... 🚶‍♀️')
-
-  console.time('Creating Hikes... 🏔')
-  console.timeEnd('Created Hikes... 🏔')
-
   // console time Adventures
-  console.time('Creating Adventures... 🏕')
+  console.time('Created Adventures... 🏕')
   console.timeEnd('Created Adventures... 🏕')
 
   // console time Chats
-  console.time('Creating Chats... 💬')
+  console.time('Created Chats... 💬')
   console.timeEnd('Created Chats... 💬')
 
   // console time Reviews
-  console.time('Creating Reviews... 📝')
+  console.time('Created Reviews... 📝')
   console.timeEnd('Created Reviews... 📝')
 
 
-  console.log(`Database has been seeded. 🌱`);
+  console.log(`Database has been seeded... 🌱`);
 }
 
 seed()
