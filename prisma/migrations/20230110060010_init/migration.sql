@@ -19,7 +19,7 @@ CREATE TABLE "Admin" (
 
 -- CreateTable
 CREATE TABLE "ContactInfo" (
-    "id" TEXT NOT NULL,
+    "id" TEXT NOT NULL PRIMARY KEY,
     "email" TEXT,
     "phone" TEXT,
     "address" TEXT,
@@ -98,6 +98,15 @@ CREATE TABLE "Sherpa" (
 );
 
 -- CreateTable
+CREATE TABLE "SherpaTrail" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "sherpaId" TEXT,
+    "trailId" TEXT,
+    CONSTRAINT "SherpaTrail_sherpaId_fkey" FOREIGN KEY ("sherpaId") REFERENCES "Sherpa" ("userId") ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT "SherpaTrail_trailId_fkey" FOREIGN KEY ("trailId") REFERENCES "Trail" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+-- CreateTable
 CREATE TABLE "Adventure" (
     "id" TEXT NOT NULL PRIMARY KEY,
     "startDate" DATETIME NOT NULL,
@@ -170,6 +179,9 @@ CREATE TABLE "_ChatToUser" (
 );
 
 -- CreateIndex
+CREATE UNIQUE INDEX "User_id_key" ON "User"("id");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
 
 -- CreateIndex
@@ -188,13 +200,40 @@ CREATE UNIQUE INDEX "ContactInfo_userId_key" ON "ContactInfo"("userId");
 CREATE UNIQUE INDEX "Password_userId_key" ON "Password"("userId");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "Note_id_key" ON "Note"("id");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Note_userId_key" ON "Note"("userId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Trail_id_key" ON "Trail"("id");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Hike_id_key" ON "Hike"("id");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Hike_trailId_key" ON "Hike"("trailId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Hike_hikerId_key" ON "Hike"("hikerId");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "Hiker_userId_key" ON "Hiker"("userId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Sherpa_userId_key" ON "Sherpa"("userId");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "SherpaTrail_id_key" ON "SherpaTrail"("id");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "Adventure_id_key" ON "Adventure"("id");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Adventure_hikerId_key" ON "Adventure"("hikerId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Adventure_sherpaId_key" ON "Adventure"("sherpaId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Adventure_hikeId_key" ON "Adventure"("hikeId");
@@ -204,6 +243,9 @@ CREATE UNIQUE INDEX "Chat_id_key" ON "Chat"("id");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Message_id_key" ON "Message"("id");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Message_senderId_key" ON "Message"("senderId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "HikerReview_id_key" ON "HikerReview"("id");

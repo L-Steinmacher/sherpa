@@ -8,7 +8,7 @@ generator client {
 }
 
 model User {
-  id    String @id @default(cuid())
+  id    String @id @unique @default(cuid())
   email String @unique
   username String @unique
   name String?
@@ -41,7 +41,7 @@ model Admin {
 }
 
 model ContactInfo {
-  id String @unique @default(cuid())
+  id String @id @unique @default(cuid())
   email String?
   phone String?
   address String?
@@ -65,7 +65,7 @@ model Password {
 }
 
 model Note {
-  id    String @id @default(cuid())
+  id    String @unique @id @default(cuid())
   title String
   body  String
 
@@ -73,11 +73,11 @@ model Note {
   updatedAt DateTime @updatedAt
 
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  userId String
+  userId String @unique
 }
 
 model Trail {
-  id String @id @default(cuid())
+  id String @id @unique @default(cuid())
   name String
   description String
   length Int
@@ -94,10 +94,10 @@ model Trail {
 }
 
 model Hike {
-  id    String @id @default(cuid())
+  id    String @id @unique @default(cuid())
 
   trail Trail @relation(fields: [trailId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  trailId String
+  trailId String @unique
 
   rating   Int
   description String
@@ -105,7 +105,7 @@ model Hike {
   imageUrl String
 
   hiker Hiker @relation(fields: [hikerId], references: [userId], onDelete: Cascade, onUpdate: Cascade )
-  hikerId String
+  hikerId String @unique
 
   adventure Adventure?
 
@@ -129,31 +129,27 @@ model Hiker {
 }
 
 model Sherpa {
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  user User  @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   userId String @unique
 
-  trails SherpaTrail[]
-
   bio String?
-  reviews SherpaReview[]
+  adventures Adventure []
   hikerReviews HikerReview[]
-  adventures Adventure[]
+  reviews SherpaReview[]
+  trails SherpaTrail[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
 model SherpaTrail {
-  id String @id @default(cuid())
+  id String @id @unique @default(cuid())
 
-  trail Trail @relation(fields: [trailId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  trailId String
+  sherpa Sherpa? @relation(fields: [sherpaId], references: [userId], onDelete: Cascade, onUpdate: Cascade)
+  trail  Trail?  @relation(fields: [trailId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  sherpaId String?
+  trailId String?
 
-  sherpa Sherpa @relation(fields: [sherpaId], references: [userId], onDelete: Cascade, onUpdate: Cascade)
-  sherpaId String
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
 }
 
 model Adventure {
@@ -165,10 +161,10 @@ model Adventure {
   updatedAt DateTime @updatedAt
 
   hiker Hiker @relation(fields: [hikerId], references: [userId], onDelete: Cascade, onUpdate: Cascade)
-  hikerId String
+  hikerId String @unique
 
   sherpa Sherpa @relation(fields: [sherpaId], references: [userId], onDelete: Cascade, onUpdate: Cascade)
-  sherpaId String
+  sherpaId String @unique
 
   hike Hike @relation(fields: [hikeId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   hikeId String @unique
@@ -195,7 +191,7 @@ model Message {
   chatId String
 
   sender User @relation(fields: [senderId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  senderId String
+  senderId String @unique
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
