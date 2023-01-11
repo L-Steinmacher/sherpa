@@ -77,6 +77,7 @@ model Trail {
 
   hikes Hike[]
   sherpas SherpaTrail[]
+  Adventures Adventure[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -96,8 +97,6 @@ model Hike {
 
   hiker Hiker @relation(fields: [hikerId], references: [userId], onDelete: Cascade, onUpdate: Cascade )
   hikerId String
-
-  adventure Adventure?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -150,17 +149,19 @@ model Adventure {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  trail Trail @relation(fields: [trailId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  trailId String
+
   hiker Hiker @relation(fields: [hikerId], references: [userId], onDelete: Cascade, onUpdate: Cascade)
   hikerId String
 
   sherpa Sherpa @relation(fields: [sherpaId], references: [userId], onDelete: Cascade, onUpdate: Cascade)
   sherpaId String
 
-  hike Hike @relation(fields: [hikeId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  hikeId String @unique
-
   hikerReview HikerReview?
   sherpaReview SherpaReview?
+  hike Hike?
+
 }
 
 model Chat {
@@ -187,6 +188,7 @@ model Message {
   updatedAt DateTime @updatedAt
 }
 
+// the review of a hiker by a sherpa
 model HikerReview {
   id String @id @unique @default(cuid())
 
@@ -206,6 +208,7 @@ model HikerReview {
   updatedAt DateTime @updatedAt
 }
 
+// the review of a sherpa by a hiker
 model SherpaReview {
   id String @id @unique @default(cuid())
 

@@ -3,6 +3,7 @@ import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import { connect } from "http2";
 import { P } from "vitest/dist/global-58e8e951";
+import { typedBoolean } from "~/utils/misc";
 
 import { createUser, createContactInfo, createPassword } from "./seed-utils";
 
@@ -135,6 +136,7 @@ async function seed() {
 
   console.time('Created Hikes... 🥾')
 
+
   const hikes = await Promise.all(
     await (await hikers).map( async (hiker) => {
       const hikerId = hiker.userId;
@@ -158,10 +160,59 @@ async function seed() {
       return hikerHikes;
       })
     )
-
+  console.timeEnd('Created Hikes... 🥾')
 
   // console time Adventures
   console.time('Created Adventures... 🏕')
+  const oneDay = 1000 * 60 * 60 * 24;
+  const sherpasWithAdventures = faker.helpers.arrayElements(await sherpas, 20);
+  const hikersWithAdventures = faker.helpers.arrayElements(await hikers, 20);
+
+  const adventures = await Promise.all(
+    await (hikersWithAdventures).map( async (curHiker) => {
+      const hikerId = curHiker.userId;
+      const trailId = faker.helpers.arrayElement(allTrails).id;
+      const hasPastAdventures = faker.datatype.boolean();
+      const hasPresentAdventures = faker.datatype.boolean();
+      const hasFutureAdventures = faker.datatype.boolean();
+
+      const dates = [
+        hasPastAdventures && {
+          startDate: new Date(Date.now() - oneDay * faker.datatype.number({min: 20, max: 50})),
+          endDate: new Date(Date.now() - oneDay * faker.datatype.number({min: 1, max: 5})),
+          sherpa: faker.helpers.arrayElement(sherpasWithAdventures),
+        },
+        hasPresentAdventures && {
+          startDate: new Date(Date.now() - oneDay * faker.datatype.number({min: 1, max: 5})),
+          endDate: new Date(Date.now() + oneDay * faker.datatype.number({min: 1, max: 2})),
+          sherpa: faker.helpers.arrayElement(sherpasWithAdventures),
+        },
+        hasFutureAdventures && {
+          startDate: new Date(Date.now() + oneDay * faker.datatype.number({min: 1, max: 5})),
+          endDate: new Date(Date.now() + oneDay * faker.datatype.number({min: 20, max: 50})),
+          sherpa: faker.helpers.arrayElement(sherpasWithAdventures),
+        },
+      ].filter(typedBoolean);
+
+      const hikerAdventures = await Promise.all(
+        dates.map( async ({startDate, endDate, sherpa}) => {
+          const newAdventure = await prisma.adventure.create({
+            data: {
+              hikerId,
+              trailId,
+              startDate,
+              endDate,
+              sherpaId: sherpa.userId,
+            },
+          })
+          return newAdventure;
+        })
+      )
+      return hikerAdventures;
+      })
+  )
+
+
 
   console.timeEnd('Created Adventures... 🏕')
 
