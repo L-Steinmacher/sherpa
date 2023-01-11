@@ -28,7 +28,6 @@ model User {
   updatedAt DateTime @updatedAt
 
   password Password?
-  notes    Note[]
 }
 
 model Admin {
@@ -64,20 +63,10 @@ model Password {
   userId String @unique
 }
 
-model Note {
-  id    String @unique @id @default(cuid())
-  title String
-  body  String
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  userId String @unique
-}
 
 model Trail {
   id String @id @unique @default(cuid())
+
   name String
   description String
   length Int
@@ -95,17 +84,18 @@ model Trail {
 
 model Hike {
   id    String @id @unique @default(cuid())
-
   trail Trail @relation(fields: [trailId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  trailId String @unique
+  trailId String
+
+  date DateTime
 
   rating   Int
-  description String
+  review String
 
   imageUrl String
 
   hiker Hiker @relation(fields: [hikerId], references: [userId], onDelete: Cascade, onUpdate: Cascade )
-  hikerId String @unique
+  hikerId String
 
   adventure Adventure?
 
@@ -161,10 +151,10 @@ model Adventure {
   updatedAt DateTime @updatedAt
 
   hiker Hiker @relation(fields: [hikerId], references: [userId], onDelete: Cascade, onUpdate: Cascade)
-  hikerId String @unique
+  hikerId String
 
   sherpa Sherpa @relation(fields: [sherpaId], references: [userId], onDelete: Cascade, onUpdate: Cascade)
-  sherpaId String @unique
+  sherpaId String
 
   hike Hike @relation(fields: [hikeId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   hikeId String @unique

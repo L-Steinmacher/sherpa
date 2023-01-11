@@ -127,13 +127,37 @@ async function seed() {
         },
       })
 
-      console.log(`Sherpa ${newSherpa} created`)
-
       return newSherpa;
     })
   )
 
   console.timeEnd(`Created ${totalSherpas} Sherpas... 🧗‍♀️`)
+
+  console.time('Created Hikes... 🥾')
+
+  const hikes = await Promise.all(
+    await (await hikers).map( async (hiker) => {
+      const hikerId = hiker.userId;
+      const trailId = faker.helpers.arrayElement(allTrails).id;
+      const totalHikerHikes = faker.datatype.number({min: 1, max: 10});
+
+      const hikerHikes = await Promise.all(
+        Array.from({ length: totalHikerHikes }, async () =>{
+          await prisma.hike.create({
+            data: {
+              hikerId,
+              trailId,
+              date: faker.date.past(),
+              imageUrl: faker.image.nature(),
+              review: faker.lorem.paragraph(1),
+              rating: faker.datatype.number({min: 1, max: 5}),
+            },
+          })
+        })
+      )
+      return hikerHikes;
+      })
+    )
 
 
   // console time Adventures
