@@ -210,14 +210,18 @@ async function seed() {
       )
       return hikerAdventures;
       })
+
   )
-
-
 
   console.timeEnd('Created Adventures... 🏕')
 
   // console time Chats
   console.time('Created Chats... 💬')
+  const chats = await Promise.all(
+    adventures.map( async (adventure) => {
+
+    })
+  )
 
 
   console.timeEnd('Created Chats... 💬')
