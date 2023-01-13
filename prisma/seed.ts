@@ -103,10 +103,10 @@ async function seed() {
   console.timeEnd('Created Hikers... 🥾')
 
   const totalSherpas = Math.floor(
-    totalUsers - totalAdmins - totalHikers
+    totalUsers - totalAdmins - totalHikers + totalHikers * 0.15
   )
   console.time(`Created ${totalSherpas} Sherpas... 🧗‍♀️`)
-  const sherpaIds = users.slice(-5).map((user) => user.id);
+  const sherpaIds = users.slice(totalSherpas).map((user) => user.id);
   const sherpas = Promise.all(
     sherpaIds.map(async (id) => {
       const sherpaTrails = faker.datatype.number({min: 1, max: 5})
