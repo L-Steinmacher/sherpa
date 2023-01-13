@@ -210,9 +210,8 @@ async function seed() {
       )
       return hikerAdventures;
       })
+
   )
-
-
 
   console.timeEnd('Created Adventures... 🏕')
 

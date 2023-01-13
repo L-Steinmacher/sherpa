@@ -8,20 +8,20 @@ generator client {
 }
 
 model User {
-  id    String @id @unique @default(cuid())
-  email String @unique
-  username String @unique
-  name String?
+  id       String  @id @unique @default(cuid())
+  email    String  @unique
+  username String  @unique
+  name     String?
 
   imageUrl String?
 
   contactInfo ContactInfo?
 
-  hiker Hiker?
+  hiker  Hiker?
   sherpa Sherpa?
-  admin Admin?
+  admin  Admin?
 
-  chats Chat[]
+  chats    Chat[]
   messages Message[]
 
   createdAt DateTime @default(now())
@@ -31,28 +31,27 @@ model User {
 }
 
 model Admin {
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   userId String @unique
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
 }
 
 model ContactInfo {
-  id String @id @unique @default(cuid())
-  email String?
-  phone String?
+  id      String  @id @unique @default(cuid())
+  email   String?
+  phone   String?
   address String?
-  city String?
-  state String?
-  zip String?
+  city    String?
+  state   String?
+  zip     String?
   country String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   userId String @unique
 }
 
@@ -63,20 +62,19 @@ model Password {
   userId String @unique
 }
 
-
 model Trail {
   id String @id @unique @default(cuid())
 
-  name String
+  name        String
   description String
-  length Int
-  routeType String
-  elevation Int
+  length      Int
+  routeType   String
+  elevation   Int
   latitude    Float
   longitude   Float
 
-  hikes Hike[]
-  sherpas SherpaTrail[]
+  hikes      Hike[]
+  sherpas    SherpaTrail[]
   Adventures Adventure[]
 
   createdAt DateTime @default(now())
@@ -84,31 +82,32 @@ model Trail {
 }
 
 model Hike {
-  id    String @id @unique @default(cuid())
-  trail Trail @relation(fields: [trailId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  id      String @id @unique @default(cuid())
+  trail   Trail  @relation(fields: [trailId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   trailId String
 
   date DateTime
 
-  rating   Int
+  rating Int
   review String
 
   imageUrl String
 
-  hiker Hiker @relation(fields: [hikerId], references: [userId], onDelete: Cascade, onUpdate: Cascade )
+  hiker   Hiker  @relation(fields: [hikerId], references: [userId], onDelete: Cascade, onUpdate: Cascade)
   hikerId String
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+  Adventure Adventure[]
 }
 
 model Hiker {
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   userId String @unique
 
-  hikes Hike []
-  adventures Adventure []
-  reviews HikerReview[]
+  hikes         Hike[]
+  adventures    Adventure[]
+  reviews       HikerReview[]
   sherpaReviews SherpaReview[]
 
   bio String?
@@ -118,14 +117,14 @@ model Hiker {
 }
 
 model Sherpa {
-  user User  @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   userId String @unique
 
-  bio String?
-  adventures Adventure []
+  bio          String?
+  adventures   Adventure[]
   hikerReviews HikerReview[]
-  reviews SherpaReview[]
-  trails SherpaTrail[]
+  reviews      SherpaReview[]
+  trails       SherpaTrail[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -134,40 +133,40 @@ model Sherpa {
 model SherpaTrail {
   id String @id @unique @default(cuid())
 
-  sherpa Sherpa? @relation(fields: [sherpaId], references: [userId], onDelete: Cascade, onUpdate: Cascade)
-  trail  Trail?  @relation(fields: [trailId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  sherpa   Sherpa? @relation(fields: [sherpaId], references: [userId], onDelete: Cascade, onUpdate: Cascade)
+  trail    Trail?  @relation(fields: [trailId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   sherpaId String?
-  trailId String?
-
+  trailId  String?
 }
 
 model Adventure {
-  id String @id @unique @default(cuid())
+  id        String   @id @unique @default(cuid())
   startDate DateTime
-  endDate DateTime
+  endDate   DateTime
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  trail Trail @relation(fields: [trailId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  trail   Trail  @relation(fields: [trailId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   trailId String
 
-  hiker Hiker @relation(fields: [hikerId], references: [userId], onDelete: Cascade, onUpdate: Cascade)
+  hiker   Hiker  @relation(fields: [hikerId], references: [userId], onDelete: Cascade, onUpdate: Cascade)
   hikerId String
 
-  sherpa Sherpa @relation(fields: [sherpaId], references: [userId], onDelete: Cascade, onUpdate: Cascade)
+  sherpa   Sherpa @relation(fields: [sherpaId], references: [userId], onDelete: Cascade, onUpdate: Cascade)
   sherpaId String
 
-  hikerReview HikerReview?
+  hikerReview  HikerReview?
   sherpaReview SherpaReview?
-  hike Hike?
+  hike         Hike?         @relation(fields: [hikeId], references: [id])
 
+  hikeId String?
 }
 
 model Chat {
   id String @id @unique @default(cuid())
 
-  users User[]
+  users    User[]
   messages Message[]
 
   createdAt DateTime @default(now())
@@ -175,13 +174,13 @@ model Chat {
 }
 
 model Message {
-  id String @id @unique @default(cuid())
+  id      String @id @unique @default(cuid())
   content String
 
-  chat Chat @relation(fields: [chatId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  chat   Chat   @relation(fields: [chatId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   chatId String
 
-  sender User @relation(fields: [senderId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  sender   User   @relation(fields: [senderId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   senderId String @unique
 
   createdAt DateTime @default(now())
@@ -192,17 +191,17 @@ model Message {
 model HikerReview {
   id String @id @unique @default(cuid())
 
-  hiker Hiker @relation(fields: [hikerId], references: [userId], onDelete: Cascade, onUpdate: Cascade)
+  hiker   Hiker  @relation(fields: [hikerId], references: [userId], onDelete: Cascade, onUpdate: Cascade)
   hikerId String
 
-  sherpa Sherpa @relation(fields: [sherpaId], references: [userId], onDelete: Cascade, onUpdate: Cascade)
+  sherpa   Sherpa @relation(fields: [sherpaId], references: [userId], onDelete: Cascade, onUpdate: Cascade)
   sherpaId String
 
-  rating Int
+  rating      Int
   description String
 
-  adventure Adventure @relation(fields: [adventureId], references: [id], onDelete: Cascade)
-  adventureId String @unique
+  adventure   Adventure @relation(fields: [adventureId], references: [id], onDelete: Cascade)
+  adventureId String    @unique
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -212,17 +211,17 @@ model HikerReview {
 model SherpaReview {
   id String @id @unique @default(cuid())
 
-  hiker Hiker @relation(fields: [hikerId], references: [userId], onDelete: Cascade, onUpdate: Cascade)
+  hiker   Hiker  @relation(fields: [hikerId], references: [userId], onDelete: Cascade, onUpdate: Cascade)
   hikerId String
 
-  sherpa Sherpa @relation(fields: [sherpaId], references: [userId], onDelete: Cascade, onUpdate: Cascade)
+  sherpa   Sherpa @relation(fields: [sherpaId], references: [userId], onDelete: Cascade, onUpdate: Cascade)
   sherpaId String
 
-  rating Int
+  rating      Int
   description String
 
-  adventure Adventure @relation(fields: [adventureId], references: [id], onDelete: Cascade)
-  adventureId String @unique
+  adventure   Adventure @relation(fields: [adventureId], references: [id], onDelete: Cascade)
+  adventureId String    @unique
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
