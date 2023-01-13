@@ -4,6 +4,7 @@ import { FormStrategy } from 'remix-auth-form';
 import invariant from 'tiny-invariant';
 import { verifyLogin } from '~/models/user.server';
 
+// The code in this file is borrowed from Kent C. Dodds Rocket Rental App
 
 invariant(process.env.SESSION_SECRET, 'SESSION_SECRET must be set')
 
@@ -22,12 +23,12 @@ export let sessionStorage = createCookieSessionStorage({
 export let { getSession, commitSession, destroySession } = sessionStorage
 
 
-export const auth = new Authenticator<string>(sessionStorage, {
+export const authenticator = new Authenticator<string>(sessionStorage, {
     // This is the key that will be used to store the token in the session
     sessionKey: 'token',
 });
 
-auth.use(
+authenticator.use(
     new FormStrategy(async ({ form }) => {
         const username  = form.get('username');
         const password = form.get('password');
