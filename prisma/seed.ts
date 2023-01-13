@@ -204,6 +204,10 @@ async function seed() {
               endDate,
               sherpaId: sherpa.userId,
             },
+            include: {
+              trail: true,
+              hiker: true,
+            }
           })
           return newAdventure;
         })
@@ -217,6 +221,10 @@ async function seed() {
 
   // console time Chats
   console.time('Created Chats... 💬')
+  const chats = await Promise.all(
+    await (await adventures).map( async (adventure) => {
+      const adventureId = adventure.id;
+      const totalMessages = faker.datatype.number({min: 1, max: 10});
 
 
   console.timeEnd('Created Chats... 💬')
