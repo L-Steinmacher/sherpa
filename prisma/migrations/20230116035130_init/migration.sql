@@ -41,17 +41,6 @@ CREATE TABLE "Password" (
 );
 
 -- CreateTable
-CREATE TABLE "Note" (
-    "id" TEXT NOT NULL PRIMARY KEY,
-    "title" TEXT NOT NULL,
-    "body" TEXT NOT NULL,
-    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" DATETIME NOT NULL,
-    "userId" TEXT NOT NULL,
-    CONSTRAINT "Note_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User" ("id") ON DELETE CASCADE ON UPDATE CASCADE
-);
-
--- CreateTable
 CREATE TABLE "Trail" (
     "id" TEXT NOT NULL PRIMARY KEY,
     "name" TEXT NOT NULL,
@@ -69,8 +58,9 @@ CREATE TABLE "Trail" (
 CREATE TABLE "Hike" (
     "id" TEXT NOT NULL PRIMARY KEY,
     "trailId" TEXT NOT NULL,
+    "date" DATETIME NOT NULL,
     "rating" INTEGER NOT NULL,
-    "description" TEXT NOT NULL,
+    "review" TEXT NOT NULL,
     "imageUrl" TEXT NOT NULL,
     "hikerId" TEXT NOT NULL,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -100,8 +90,8 @@ CREATE TABLE "Sherpa" (
 -- CreateTable
 CREATE TABLE "SherpaTrail" (
     "id" TEXT NOT NULL PRIMARY KEY,
-    "sherpaId" TEXT,
-    "trailId" TEXT,
+    "sherpaId" TEXT NOT NULL,
+    "trailId" TEXT NOT NULL,
     CONSTRAINT "SherpaTrail_sherpaId_fkey" FOREIGN KEY ("sherpaId") REFERENCES "Sherpa" ("userId") ON DELETE CASCADE ON UPDATE CASCADE,
     CONSTRAINT "SherpaTrail_trailId_fkey" FOREIGN KEY ("trailId") REFERENCES "Trail" ("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
@@ -113,12 +103,14 @@ CREATE TABLE "Adventure" (
     "endDate" DATETIME NOT NULL,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" DATETIME NOT NULL,
+    "trailId" TEXT NOT NULL,
     "hikerId" TEXT NOT NULL,
     "sherpaId" TEXT NOT NULL,
-    "hikeId" TEXT NOT NULL,
+    "hikeId" TEXT,
+    CONSTRAINT "Adventure_trailId_fkey" FOREIGN KEY ("trailId") REFERENCES "Trail" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
     CONSTRAINT "Adventure_hikerId_fkey" FOREIGN KEY ("hikerId") REFERENCES "Hiker" ("userId") ON DELETE CASCADE ON UPDATE CASCADE,
     CONSTRAINT "Adventure_sherpaId_fkey" FOREIGN KEY ("sherpaId") REFERENCES "Sherpa" ("userId") ON DELETE CASCADE ON UPDATE CASCADE,
-    CONSTRAINT "Adventure_hikeId_fkey" FOREIGN KEY ("hikeId") REFERENCES "Hike" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+    CONSTRAINT "Adventure_hikeId_fkey" FOREIGN KEY ("hikeId") REFERENCES "Hike" ("id") ON DELETE SET NULL ON UPDATE CASCADE
 );
 
 -- CreateTable
@@ -146,7 +138,7 @@ CREATE TABLE "HikerReview" (
     "hikerId" TEXT NOT NULL,
     "sherpaId" TEXT NOT NULL,
     "rating" INTEGER NOT NULL,
-    "description" TEXT NOT NULL,
+    "review" TEXT NOT NULL,
     "adventureId" TEXT NOT NULL,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" DATETIME NOT NULL,
@@ -161,7 +153,7 @@ CREATE TABLE "SherpaReview" (
     "hikerId" TEXT NOT NULL,
     "sherpaId" TEXT NOT NULL,
     "rating" INTEGER NOT NULL,
-    "description" TEXT NOT NULL,
+    "review" TEXT NOT NULL,
     "adventureId" TEXT NOT NULL,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" DATETIME NOT NULL,
@@ -200,22 +192,10 @@ CREATE UNIQUE INDEX "ContactInfo_userId_key" ON "ContactInfo"("userId");
 CREATE UNIQUE INDEX "Password_userId_key" ON "Password"("userId");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Note_id_key" ON "Note"("id");
-
--- CreateIndex
-CREATE UNIQUE INDEX "Note_userId_key" ON "Note"("userId");
-
--- CreateIndex
 CREATE UNIQUE INDEX "Trail_id_key" ON "Trail"("id");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Hike_id_key" ON "Hike"("id");
-
--- CreateIndex
-CREATE UNIQUE INDEX "Hike_trailId_key" ON "Hike"("trailId");
-
--- CreateIndex
-CREATE UNIQUE INDEX "Hike_hikerId_key" ON "Hike"("hikerId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Hiker_userId_key" ON "Hiker"("userId");
@@ -230,22 +210,10 @@ CREATE UNIQUE INDEX "SherpaTrail_id_key" ON "SherpaTrail"("id");
 CREATE UNIQUE INDEX "Adventure_id_key" ON "Adventure"("id");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Adventure_hikerId_key" ON "Adventure"("hikerId");
-
--- CreateIndex
-CREATE UNIQUE INDEX "Adventure_sherpaId_key" ON "Adventure"("sherpaId");
-
--- CreateIndex
-CREATE UNIQUE INDEX "Adventure_hikeId_key" ON "Adventure"("hikeId");
-
--- CreateIndex
 CREATE UNIQUE INDEX "Chat_id_key" ON "Chat"("id");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Message_id_key" ON "Message"("id");
-
--- CreateIndex
-CREATE UNIQUE INDEX "Message_senderId_key" ON "Message"("senderId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "HikerReview_id_key" ON "HikerReview"("id");
