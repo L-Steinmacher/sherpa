@@ -1,6 +1,7 @@
 import { faker } from "@faker-js/faker";
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
+import { create } from "domain";
 import { connect } from "http2";
 import { P } from "vitest/dist/global-58e8e951";
 import { typedBoolean } from "~/utils/misc";
@@ -44,11 +45,12 @@ async function seed() {
     })
   )
   console.timeEnd('Created Trails... 🚶‍♀️')
+
   console.time('Created Users ... 👤')
   const totalUsers = 100;
 
   const users = await Promise.all(
-    Array.from({ length:totalUsers },async () => {
+    Array.from({ length:totalUsers }, async () => {
       const userData = await createUser();
       const user = await prisma.user.create({
         data: {
@@ -109,34 +111,39 @@ async function seed() {
   const sherpaIds = users.slice(totalSherpas).map((user) => user.id);
   const sherpas = Promise.all(
     sherpaIds.map(async (id) => {
-      const sherpaTrails = faker.datatype.number({min: 1, max: 5})
+
+
 
       const newSherpa = await prisma.sherpa.create({
         data: {
           userId: id,
           bio: faker.lorem.sentence(2),
-          trails: {
-            create:[
-              ...Array.from({ length: sherpaTrails }, async () => {
-                const trailId = faker.helpers.arrayElement(allTrails).id;
-                return {
-                  trailId
-                }
-              })
-            ]
-          },
         },
       })
-
+      const totalSherpaTrails = faker.datatype.number({min: 1, max: 10});
+    const sherpaTrails = await Promise.all(
+      Array.from({ length: totalSherpaTrails }, async () => {
+        const trailId = faker.helpers.arrayElement(allTrails).id;
+        const newSherpaTrail = await prisma.sherpaTrail.create({
+          data: {
+            trailId,
+            sherpaId: id,
+          },
+        })
+        return newSherpaTrail;
+      })
+    )
       return newSherpa;
     })
+
   )
 
   console.timeEnd(`Created ${totalSherpas} Sherpas... 🧗‍♀️`)
 
+
+
+
   console.time('Created Hikes... 🥾')
-
-
   const hikes = await Promise.all(
     await (await hikers).map( async (hiker) => {
       const hikerId = hiker.userId;
@@ -165,7 +172,10 @@ async function seed() {
   // console time Adventures
   console.time('Created Adventures... 🏕')
   const oneDay = 1000 * 60 * 60 * 24;
-  const sherpasWithAdventures = faker.helpers.arrayElements(await sherpas, 20);
+  const sherpasWithAdventures = faker.helpers.arrayElements(
+    (await sherpas).flatMap((sherpa) => sherpa),
+    20
+  );
   const hikersWithAdventures = faker.helpers.arrayElements(await hikers, 20);
 
   const adventures = await Promise.all(
@@ -204,14 +214,14 @@ async function seed() {
               endDate,
               sherpaId: sherpa.userId,
             },
+
           })
           return newAdventure;
         })
       )
       return hikerAdventures;
       })
-
-  )
+  ).then((adventures) => adventures.flat())
 
   console.timeEnd('Created Adventures... 🏕')
 
@@ -219,10 +229,36 @@ async function seed() {
   console.time('Created Chats... 💬')
   const chats = await Promise.all(
     adventures.map( async (adventure) => {
+      const createdAt = faker.date.between(adventure.createdAt.getTime() - oneDay , adventure.createdAt.getTime() + oneDay );
+      const totalMessages = faker.datatype.number({ min: 1, max: 6 });
 
-    })
+      const chat = await prisma.chat.create({
+            data: {
+              users: {
+                connect: [
+                  { id: adventure.hikerId },
+                  { id: adventure.sherpaId },
+                ],
+              },
+              createdAt,
+              messages: {
+                create: await Promise.all( Array.from({ length: totalMessages },
+                  (_, index) => {
+                    const sentAt = new Date(createdAt.getTime() + 1000 * 3 * index)
+                    return {
+                      createdAt: sentAt,
+                      updatedAt: sentAt,
+                      content: faker.lorem.sentences(faker.datatype.number({ min: 1, max: 3 })),
+                      senderId: faker.datatype.boolean() ? adventure.hikerId : adventure.sherpaId,
+                    }
+                  })
+                ),
+              },
+            },
+          })
+      return chat;
+    }),
   )
-
 
   console.timeEnd('Created Chats... 💬')
 

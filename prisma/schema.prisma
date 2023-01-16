@@ -117,8 +117,8 @@ model Hiker {
 }
 
 model Sherpa {
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  userId String @unique
+  user         User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  userId       String @unique
 
   bio          String?
   adventures   Adventure[]
@@ -126,17 +126,16 @@ model Sherpa {
   reviews      SherpaReview[]
   trails       SherpaTrail[]
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 }
 
 model SherpaTrail {
   id String @id @unique @default(cuid())
-
-  sherpa   Sherpa? @relation(fields: [sherpaId], references: [userId], onDelete: Cascade, onUpdate: Cascade)
-  trail    Trail?  @relation(fields: [trailId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  sherpaId String?
-  trailId  String?
+  sherpa   Sherpa @relation(fields: [sherpaId], references: [userId], onDelete: Cascade, onUpdate: Cascade)
+  trail    Trail  @relation(fields: [trailId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  sherpaId String
+  trailId  String
 }
 
 model Adventure {
@@ -159,7 +158,6 @@ model Adventure {
   hikerReview  HikerReview?
   sherpaReview SherpaReview?
   hike         Hike?         @relation(fields: [hikeId], references: [id])
-
   hikeId String?
 }
 
@@ -181,7 +179,7 @@ model Message {
   chatId String
 
   sender   User   @relation(fields: [senderId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  senderId String @unique
+  senderId String
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -198,7 +196,7 @@ model HikerReview {
   sherpaId String
 
   rating      Int
-  description String
+  review      String
 
   adventure   Adventure @relation(fields: [adventureId], references: [id], onDelete: Cascade)
   adventureId String    @unique
@@ -218,7 +216,7 @@ model SherpaReview {
   sherpaId String
 
   rating      Int
-  description String
+  review String
 
   adventure   Adventure @relation(fields: [adventureId], references: [id], onDelete: Cascade)
   adventureId String    @unique
