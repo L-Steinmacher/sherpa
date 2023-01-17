@@ -1,5 +1,5 @@
 import { DataFunctionArgs, redirect } from "@remix-run/node"
-import { prisma } from "~/db.server"
+import { prisma } from "~/utils/db.server"
 import { authenticator } from "~/utils/auth.server"
 
 export async function loader({ request }: DataFunctionArgs) {
