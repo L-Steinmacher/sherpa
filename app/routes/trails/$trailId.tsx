@@ -1,7 +1,7 @@
 import { DataFunctionArgs, json } from "@remix-run/node";
 import { Outlet, useCatch, useLoaderData, useParams } from "@remix-run/react";
 import invariant from "tiny-invariant";
-import { prisma } from "~/db.server";
+import { prisma } from "~/utils/db.server";
 
 
 export async function loader({ params }: DataFunctionArgs) {

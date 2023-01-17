@@ -264,6 +264,63 @@ async function seed() {
 
   // console time Reviews
   console.time('Created Reviews... 📝')
+  // an array of all the adventures that have ended
+  const adventuresReadyToReview = adventures.filter((adventure) => {
+    const today = new Date();
+    return adventure.endDate.getTime() < today.getTime();
+  });
+  const reviews = await Promise.all(
+    adventuresReadyToReview.map( async (adventure) => {
+      const createdAt = faker.date.between(adventure.endDate.getTime() - oneDay , adventure.endDate.getTime() + oneDay );
+      const hostReview = Math.random() > 0.3 ?
+        await prisma.sherpaReview.create({
+          data: {
+            createdAt,
+            updatedAt: createdAt,
+            review  : faker.lorem.paragraph(faker.datatype.number({ min: 1, max: 3 })),
+            rating  : faker.datatype.number({ min: 1, max: 5 }),
+            adventureId: adventure.id,
+            sherpaId: adventure.sherpaId,
+            hikerId: adventure.hikerId,
+          },
+        }) : null;
+
+      const hikerReview = Math.random() > 0.3 ?
+        await prisma.hikerReview.create({
+          data: {
+            createdAt,
+            updatedAt: createdAt,
+            review  : faker.lorem.paragraph(faker.datatype.number({ min: 1, max: 3 })),
+            rating  : faker.datatype.number({ min: 1, max: 5 }),
+            adventureId: adventure.id,
+            sherpaId: adventure.sherpaId,
+            hikerId: adventure.hikerId,
+          },
+        }) : null;
+
+        const hike = Math.random() > 0.3 ? await prisma.hike.create({
+          data: {
+            createdAt,
+            updatedAt: createdAt,
+            hikerId: adventure.hikerId,
+            review  : faker.lorem.paragraph(faker.datatype.number({ min: 1, max: 3 })),
+            rating  : faker.datatype.number({ min: 1, max: 5 }),
+            Adventure: {
+              connect: {
+                id: adventure.id,
+              },
+            },
+            trailId: adventure.trailId,
+            imageUrl: faker.image.nature(),
+            date: adventure.startDate,
+          },
+        }) : null;
+
+      return [hostReview, hikerReview, hike];
+    }),
+  ).then((reviews) => reviews.flat().filter(typedBoolean))
+
+
   console.timeEnd('Created Reviews... 📝')
 
   console.time('Indy Created... 🐶')
