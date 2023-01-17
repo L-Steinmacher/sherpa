@@ -5,7 +5,7 @@ import { prisma } from "~/utils/db.server";
 
 
 export async function loader({ params }: DataFunctionArgs) {
-    invariant(params.trailId, "trailId is missing")
+    invariant(params.trailId, "trailId is missing...")
     const trailId = params.trailId;
     const trail = await prisma.trail.findUnique({
         where: { id: trailId },
