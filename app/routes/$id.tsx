@@ -34,6 +34,7 @@ export async function loader({params}: DataFunctionArgs) {
     where: { id: params.id },
     select: {id: true}
   })
+  if (chat) return redirect(`/chats/${chat.id}`)
 
   return redirect('/')
 };
