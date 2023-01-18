@@ -1,4 +1,4 @@
-import type { LinksFunction, LoaderArgs, MetaFunction } from "@remix-run/node";
+import { DataFunctionArgs, LinksFunction, MetaFunction, redirect } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import {
   Links,
@@ -22,7 +22,7 @@ export const meta: MetaFunction = () => ({
   viewport: "width=device-width,initial-scale=1",
 });
 
-export async function loader({ request }: LoaderArgs) {
+export async function loader({ request }: DataFunctionArgs) {
   return json({
     user: await getUser(request),
   });
