@@ -47,3 +47,16 @@ authenticator.use(
     }),
     FormStrategy.name,
 )
+
+
+export async function requireUserId(request: Request) {
+	const requestUrl = new URL(request.url)
+	const loginParams = new URLSearchParams([
+		['redirectTo', `${requestUrl.pathname}${requestUrl.search}`],
+	])
+	const failureRedirect = `/login?${loginParams}`
+	const userId = await authenticator.isAuthenticated(request, {
+		failureRedirect,
+	})
+	return userId
+}
