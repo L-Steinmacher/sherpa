@@ -1,31 +1,16 @@
-import { Link } from "@remix-run/react";
+
 import { useOptionalUser } from "~/utils";
 
 
 export default function Index() {
-  const user = useOptionalUser();
+
   return (
     <main >
-      <nav >
-        <ul>
-          <li>
-            <Link to="/trails">Trails</Link>
-          </li>
-          <li>
-            <Link to="/adventures">Adventures</Link>
-          </li>
-          <li>
-          {
-            user ? (
+    <div className="flex flex-col items-center justify-center h-full">
+      <h1 className="text-4xl font-bold">Welcome to Sherpa</h1>
+      <p className="text-xl text-gray-500">A place to track your hikes</p>
+    </div>
 
-                <Link to="me">{user.name}</Link>
-
-            ):
-              <Link to="/login">Log In</Link>
-            }
-            </li>
-        </ul>
-      </nav>
     </main>
   );
 }
