@@ -57,11 +57,23 @@ export async function loader({ params }: DataFunctionArgs) {
 
 export default function TrailRoute() {
     const data = useLoaderData()
+    invariant(data.trail, "trail is missing...")
     return (
         <div>
-            <h1>{data.trail.name}</h1>
-            <p>{data.averageRating}</p>
-            <pre>{JSON.stringify(data.trail, null, 2)}</pre>
+            <details>
+                <summary>Trail Data</summary>
+                <p>{data.averageRating}</p>
+                <pre>{JSON.stringify(data.trail, null, 2)}</pre>
+            </details>
+            <div>
+                <h1 className="">{data.trail.name}</h1>
+                <p>{data.trail.description}</p>
+                <span>{data.trail.length} miles</span>
+                <img src={data.trail.imageUrl} alt={data.trail.name} className="" />
+
+
+            </div>
+
             <Outlet />
         </div>
     )
