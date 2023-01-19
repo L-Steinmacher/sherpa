@@ -8,7 +8,69 @@ export async function loader({ params }: DataFunctionArgs) {
     invariant(params.username, "username is missing")
     const user = await prisma.user.findUnique({
         where: { username: params.username },
+        select: {
+            id: true,
+            name: true,
+            username: true,
+            imageUrl: true,
+            hiker: {
+                select: {
+                    bio: true,
+                    adventures: {
+                        select: {
+                            id: true,
+                            trail: {
+                                select: {
+                                    id: true,
+                                },
+                            },
+                        },
+                    },
+                    hikes: {
+                        select: {
+                            id: true,
+                            imageUrl: true,
+                            date: true,
+                            trail: {
+                                select: {
+                                    id: true,
+                                    name: true,
+                                },
+                            },
+                        },
+                    },
+                },
+            },
+            sherpa: {
+                select: {
+                    bio: true,
+                    trails: {
+                        select: {
+                            id: true,
+                            trail: {
+                                select: {
+                                    id: true,
+                                    name: true,
+                                },
+                            },
+                        },
+                    },
+                    adventures: {
+                        select: {
+                            id: true,
+                            trail: {
+                                select: {
+                                    id: true,
+                                },
+                            },
+                        },
+                    },
+                },
+            },
+        },
     })
+
+
     if (!user) {
         throw new Response("User not found", { status: 404 })
     }
