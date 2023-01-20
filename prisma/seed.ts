@@ -8,26 +8,25 @@ import { typedBoolean } from "~/utils/misc";
 
 import { createUser, createContactInfo, createPassword } from "./seed-utils";
 
-
 const prisma = new PrismaClient();
 
 async function seed() {
-  console.log('Seeding the database... 🌱')
-  console.time(`Database has been seeded... 🌱`)
+  console.log("Seeding the database... 🌱");
+  console.time(`Database has been seeded... 🌱`);
   // cleanup the existing database
-  console.time('Cleaned up the database... 🧹')
-  await prisma.user.deleteMany({where: {}});
-  await prisma.admin.deleteMany({where: {}});
-  await prisma.hiker.deleteMany({where: {}});
-  await prisma.sherpa.deleteMany({where: {}});
-  await prisma.trail.deleteMany({where: {}});
-  await prisma.hike.deleteMany({where: {}});
-  await prisma.adventure.deleteMany({where: {}});
-  await prisma.chat.deleteMany({where: {}});
+  console.time("Cleaned up the database... 🧹");
+  await prisma.user.deleteMany({ where: {} });
+  await prisma.admin.deleteMany({ where: {} });
+  await prisma.hiker.deleteMany({ where: {} });
+  await prisma.sherpa.deleteMany({ where: {} });
+  await prisma.trail.deleteMany({ where: {} });
+  await prisma.hike.deleteMany({ where: {} });
+  await prisma.adventure.deleteMany({ where: {} });
+  await prisma.chat.deleteMany({ where: {} });
 
-  console.timeEnd('Cleaned up the database... 🧹')
+  console.timeEnd("Cleaned up the database... 🧹");
 
-  console.time('Created Trails... 🚶‍♀️')
+  console.time("Created Trails... 🚶‍♀️");
   const allTrails = await Promise.all(
     Array.from({ length: 20 }, async () => {
       const trail = await prisma.trail.create({
@@ -36,21 +35,21 @@ async function seed() {
           description: faker.lorem.paragraph(1),
           latitude: Number(faker.address.latitude()),
           longitude: Number(faker.address.longitude()),
-          routeType: faker.helpers.arrayElement(['Easy', 'Moderate', 'Hard']),
-          length: faker.datatype.number({min: 1, max: 20}),
-          elevation: faker.datatype.number({min: 100, max: 10000}),
+          routeType: faker.helpers.arrayElement(["Easy", "Moderate", "Hard"]),
+          length: faker.datatype.number({ min: 1, max: 20 }),
+          elevation: faker.datatype.number({ min: 100, max: 10000 }),
         },
-      })
+      });
       return trail;
     })
-  )
-  console.timeEnd('Created Trails... 🚶‍♀️')
+  );
+  console.timeEnd("Created Trails... 🚶‍♀️");
 
-  console.time('Created Users ... 👤')
+  console.time("Created Users ... 👤");
   const totalUsers = 100;
 
   const users = await Promise.all(
-    Array.from({ length:totalUsers }, async () => {
+    Array.from({ length: totalUsers }, async () => {
       const userData = await createUser();
       const user = await prisma.user.create({
         data: {
@@ -61,33 +60,34 @@ async function seed() {
           password: {
             create: createPassword(userData.username),
           },
-        }
-      })
+        },
+      });
       return user;
-    }),
-    );
+    })
+  );
 
+  console.timeEnd("Created Users ... 👤");
 
-  console.timeEnd('Created Users ... 👤')
-
-  console.time('Created Admins... 👩‍💼')
+  console.time("Created Admins... 👩‍💼");
   const totalAdmins = Math.floor(totalUsers * 0.1);
-  const adminIds = users.slice(0,totalAdmins).map((user) => user.id);
+  const adminIds = users.slice(0, totalAdmins).map((user) => user.id);
   const admins = Promise.all(
     adminIds.map(async (id) => {
       const admin = await prisma.admin.create({
         data: {
           userId: id,
         },
-      })
+      });
       return admin;
     })
-  )
-  console.timeEnd('Created Admins... 👩‍💼')
+  );
+  console.timeEnd("Created Admins... 👩‍💼");
 
-  console.time('Created Hikers... 🥾')
+  console.time("Created Hikers... 🥾");
   const totalHikers = Math.floor(totalUsers * 0.6);
-  const hikerIds = users.slice(totalAdmins, totalAdmins + totalHikers).map((user) => user.id);
+  const hikerIds = users
+    .slice(totalAdmins, totalAdmins + totalHikers)
+    .map((user) => user.id);
 
   const hikers = Promise.all(
     hikerIds.map(async (id) => {
@@ -96,62 +96,57 @@ async function seed() {
           userId: id,
           bio: faker.lorem.paragraph(1),
         },
-      })
+      });
 
       return hiker;
     })
-  )
+  );
 
-  console.timeEnd('Created Hikers... 🥾')
+  console.timeEnd("Created Hikers... 🥾");
 
   const totalSherpas = Math.floor(
     totalUsers - totalAdmins - totalHikers + totalHikers * 0.15
-  )
-  console.time(`Created ${totalSherpas} Sherpas... 🧗‍♀️`)
+  );
+  console.time(`Created ${totalSherpas} Sherpas... 🧗‍♀️`);
   const sherpaIds = users.slice(totalSherpas).map((user) => user.id);
   const sherpas = Promise.all(
     sherpaIds.map(async (id) => {
-
-
-
       const newSherpa = await prisma.sherpa.create({
         data: {
           userId: id,
           bio: faker.lorem.sentence(2),
         },
-      })
-      const totalSherpaTrails = faker.datatype.number({min: 1, max: 10});
-    const sherpaTrails = await Promise.all(
-      Array.from({ length: totalSherpaTrails }, async () => {
-        const trailId = faker.helpers.arrayElement(allTrails).id;
-        const newSherpaTrail = await prisma.sherpaTrail.create({
-          data: {
-            trailId,
-            sherpaId: id,
-          },
+      });
+      const totalSherpaTrails = faker.datatype.number({ min: 1, max: 10 });
+      const sherpaTrails = await Promise.all(
+        Array.from({ length: totalSherpaTrails }, async () => {
+          const trailId = faker.helpers.arrayElement(allTrails).id;
+          const newSherpaTrail = await prisma.sherpaTrail.create({
+            data: {
+              trailId,
+              sherpaId: id,
+            },
+          });
+          return newSherpaTrail;
         })
-        return newSherpaTrail;
-      })
-    )
+      );
       return newSherpa;
     })
+  );
 
-  )
+  console.timeEnd(`Created ${totalSherpas} Sherpas... 🧗‍♀️`);
 
-  console.timeEnd(`Created ${totalSherpas} Sherpas... 🧗‍♀️`)
-
-
-
-
-  console.time('Created Hikes... 🥾')
+  console.time("Created Hikes... 🥾");
   const hikes = await Promise.all(
-    await (await hikers).map( async (hiker) => {
+    await (
+      await hikers
+    ).map(async (hiker) => {
       const hikerId = hiker.userId;
       const trailId = faker.helpers.arrayElement(allTrails).id;
-      const totalHikerHikes = faker.datatype.number({min: 1, max: 10});
+      const totalHikerHikes = faker.datatype.number({ min: 1, max: 10 });
 
       const hikerHikes = await Promise.all(
-        Array.from({ length: totalHikerHikes }, async () =>{
+        Array.from({ length: totalHikerHikes }, async () => {
           await prisma.hike.create({
             data: {
               hikerId,
@@ -159,27 +154,27 @@ async function seed() {
               date: faker.date.past(),
               imageUrl: faker.image.nature(),
               review: faker.lorem.paragraph(1),
-              rating: faker.datatype.number({min: 1, max: 5}),
+              rating: faker.datatype.number({ min: 1, max: 5 }),
             },
-          })
+          });
         })
-      )
+      );
       return hikerHikes;
-      })
-    )
-  console.timeEnd('Created Hikes... 🥾')
+    })
+  );
+  console.timeEnd("Created Hikes... 🥾");
 
   // console time Adventures
-  console.time('Created Adventures... 🏕')
+  console.time("Created Adventures... 🏕");
   const oneDay = 1000 * 60 * 60 * 24;
   const sherpasWithAdventures = faker.helpers.arrayElements(
     (await sherpas).flatMap((sherpa) => sherpa),
     20
   );
-  const hikersWithAdventures = faker.helpers.arrayElements(await hikers, 20);
+  const hikersWithAdventures = faker.helpers.arrayElements(await hikers, 30);
 
   const adventures = await Promise.all(
-    await (hikersWithAdventures).map( async (curHiker) => {
+    await hikersWithAdventures.map(async (curHiker) => {
       const hikerId = curHiker.userId;
       const trailId = faker.helpers.arrayElement(allTrails).id;
       const hasPastAdventures = faker.datatype.boolean();
@@ -188,24 +183,36 @@ async function seed() {
 
       const dates = [
         hasPastAdventures && {
-          startDate: new Date(Date.now() - oneDay * faker.datatype.number({min: 20, max: 50})),
-          endDate: new Date(Date.now() - oneDay * faker.datatype.number({min: 1, max: 5})),
+          startDate: new Date(
+            Date.now() - oneDay * faker.datatype.number({ min: 20, max: 50 })
+          ),
+          endDate: new Date(
+            Date.now() - oneDay * faker.datatype.number({ min: 1, max: 5 })
+          ),
           sherpa: faker.helpers.arrayElement(sherpasWithAdventures),
         },
         hasPresentAdventures && {
-          startDate: new Date(Date.now() - oneDay * faker.datatype.number({min: 1, max: 5})),
-          endDate: new Date(Date.now() + oneDay * faker.datatype.number({min: 1, max: 2})),
+          startDate: new Date(
+            Date.now() - oneDay * faker.datatype.number({ min: 1, max: 5 })
+          ),
+          endDate: new Date(
+            Date.now() + oneDay * faker.datatype.number({ min: 1, max: 2 })
+          ),
           sherpa: faker.helpers.arrayElement(sherpasWithAdventures),
         },
         hasFutureAdventures && {
-          startDate: new Date(Date.now() + oneDay * faker.datatype.number({min: 1, max: 5})),
-          endDate: new Date(Date.now() + oneDay * faker.datatype.number({min: 20, max: 50})),
+          startDate: new Date(
+            Date.now() + oneDay * faker.datatype.number({ min: 1, max: 5 })
+          ),
+          endDate: new Date(
+            Date.now() + oneDay * faker.datatype.number({ min: 20, max: 50 })
+          ),
           sherpa: faker.helpers.arrayElement(sherpasWithAdventures),
         },
       ].filter(typedBoolean);
 
       const hikerAdventures = await Promise.all(
-        dates.map( async ({startDate, endDate, sherpa}) => {
+        dates.map(async ({ startDate, endDate, sherpa }) => {
           const newAdventure = await prisma.adventure.create({
             data: {
               hikerId,
@@ -214,116 +221,134 @@ async function seed() {
               endDate,
               sherpaId: sherpa.userId,
             },
-
-          })
+          });
           return newAdventure;
         })
-      )
+      );
       return hikerAdventures;
-      })
-  ).then((adventures) => adventures.flat())
+    })
+  ).then((adventures) => adventures.flat());
 
-  console.timeEnd('Created Adventures... 🏕')
+  console.timeEnd("Created Adventures... 🏕");
 
   // console time Chats
-  console.time('Created Chats... 💬')
+  console.time("Created Chats... 💬");
   const chats = await Promise.all(
-    adventures.map( async (adventure) => {
-      const createdAt = faker.date.between(adventure.createdAt.getTime() - oneDay , adventure.createdAt.getTime() + oneDay );
+    adventures.map(async (adventure) => {
+      const createdAt = faker.date.between(
+        adventure.createdAt.getTime() - oneDay,
+        adventure.createdAt.getTime() + oneDay
+      );
       const totalMessages = faker.datatype.number({ min: 1, max: 6 });
 
       const chat = await prisma.chat.create({
-            data: {
-              users: {
-                connect: [
-                  { id: adventure.hikerId },
-                  { id: adventure.sherpaId },
-                ],
-              },
-              createdAt,
-              messages: {
-                create: await Promise.all( Array.from({ length: totalMessages },
-                  (_, index) => {
-                    const sentAt = new Date(createdAt.getTime() + 1000 * 3 * index)
-                    return {
-                      createdAt: sentAt,
-                      updatedAt: sentAt,
-                      content: faker.lorem.sentences(faker.datatype.number({ min: 1, max: 3 })),
-                      senderId: faker.datatype.boolean() ? adventure.hikerId : adventure.sherpaId,
-                    }
-                  })
-                ),
-              },
-            },
-          })
+        data: {
+          users: {
+            connect: [{ id: adventure.hikerId }, { id: adventure.sherpaId }],
+          },
+          createdAt,
+          messages: {
+            create: await Promise.all(
+              Array.from({ length: totalMessages }, (_, index) => {
+                const sentAt = new Date(createdAt.getTime() + 1000 * 3 * index);
+                return {
+                  createdAt: sentAt,
+                  updatedAt: sentAt,
+                  content: faker.lorem.sentences(
+                    faker.datatype.number({ min: 1, max: 3 })
+                  ),
+                  senderId: faker.datatype.boolean()
+                    ? adventure.hikerId
+                    : adventure.sherpaId,
+                };
+              })
+            ),
+          },
+        },
+      });
       return chat;
-    }),
-  )
+    })
+  );
 
-  console.timeEnd('Created Chats... 💬')
+  console.timeEnd("Created Chats... 💬");
 
   // console time Reviews
-  console.time('Created Reviews... 📝')
+  console.time("Created Reviews... 📝");
   // an array of all the adventures that have ended
   const adventuresReadyToReview = adventures.filter((adventure) => {
     const today = new Date();
     return adventure.endDate.getTime() < today.getTime();
   });
   const reviews = await Promise.all(
-    adventuresReadyToReview.map( async (adventure) => {
-      const createdAt = faker.date.between(adventure.endDate.getTime() - oneDay , adventure.endDate.getTime() + oneDay );
-      const hostReview = Math.random() > 0.3 ?
-        await prisma.sherpaReview.create({
-          data: {
-            createdAt,
-            updatedAt: createdAt,
-            review  : faker.lorem.paragraph(faker.datatype.number({ min: 1, max: 3 })),
-            rating  : faker.datatype.number({ min: 1, max: 5 }),
-            adventureId: adventure.id,
-            sherpaId: adventure.sherpaId,
-            hikerId: adventure.hikerId,
-          },
-        }) : null;
-
-      const hikerReview = Math.random() > 0.3 ?
-        await prisma.hikerReview.create({
-          data: {
-            createdAt,
-            updatedAt: createdAt,
-            review  : faker.lorem.paragraph(faker.datatype.number({ min: 1, max: 3 })),
-            rating  : faker.datatype.number({ min: 1, max: 5 }),
-            adventureId: adventure.id,
-            sherpaId: adventure.sherpaId,
-            hikerId: adventure.hikerId,
-          },
-        }) : null;
-
-        const hike = Math.random() > 0.3 ? await prisma.hike.create({
-          data: {
-            createdAt,
-            updatedAt: createdAt,
-            hikerId: adventure.hikerId,
-            review  : faker.lorem.paragraph(faker.datatype.number({ min: 1, max: 3 })),
-            rating  : faker.datatype.number({ min: 1, max: 5 }),
-            Adventure: {
-              connect: {
-                id: adventure.id,
+    adventuresReadyToReview.map(async (adventure) => {
+      const createdAt = faker.date.between(
+        adventure.endDate.getTime() - oneDay,
+        adventure.endDate.getTime() + oneDay
+      );
+      const hostReview =
+        Math.random() > 0.3
+          ? await prisma.sherpaReview.create({
+              data: {
+                createdAt,
+                updatedAt: createdAt,
+                review: faker.lorem.paragraph(
+                  faker.datatype.number({ min: 1, max: 3 })
+                ),
+                rating: faker.datatype.number({ min: 1, max: 5 }),
+                adventureId: adventure.id,
+                sherpaId: adventure.sherpaId,
+                hikerId: adventure.hikerId,
               },
-            },
-            trailId: adventure.trailId,
-            imageUrl: faker.image.nature(),
-            date: adventure.startDate,
-          },
-        }) : null;
+            })
+          : null;
+
+      const hikerReview =
+        Math.random() > 0.3
+          ? await prisma.hikerReview.create({
+              data: {
+                createdAt,
+                updatedAt: createdAt,
+                review: faker.lorem.paragraph(
+                  faker.datatype.number({ min: 1, max: 3 })
+                ),
+                rating: faker.datatype.number({ min: 1, max: 5 }),
+                adventureId: adventure.id,
+                sherpaId: adventure.sherpaId,
+                hikerId: adventure.hikerId,
+              },
+            })
+          : null;
+
+      const hike =
+        Math.random() > 0.3
+          ? await prisma.hike.create({
+              data: {
+                createdAt,
+                updatedAt: createdAt,
+                hikerId: adventure.hikerId,
+                review: faker.lorem.paragraph(
+                  faker.datatype.number({ min: 1, max: 3 })
+                ),
+                rating: faker.datatype.number({ min: 1, max: 5 }),
+                Adventure: {
+                  connect: {
+                    id: adventure.id,
+                  },
+                },
+                trailId: adventure.trailId,
+                imageUrl: faker.image.nature(),
+                date: adventure.startDate,
+              },
+            })
+          : null;
 
       return [hostReview, hikerReview, hike];
-    }),
-  ).then((reviews) => reviews.flat().filter(typedBoolean))
+    })
+  ).then((reviews) => reviews.flat().filter(typedBoolean));
 
+  console.timeEnd("Created Reviews... 📝");
 
-  console.timeEnd('Created Reviews... 📝')
-
-  console.time('Indy Created... 🐶')
+  console.time("Indy Created... 🐶");
   const indy = createUser();
 
   await prisma.user.create({
@@ -346,10 +371,9 @@ async function seed() {
       sherpa: {
         create: {},
       },
-    }
+    },
   });
-  console.timeEnd('Indy Created... 🐶')
-
+  console.timeEnd("Indy Created... 🐶");
 
   console.log(`Database has been seeded... 🌱`);
 }

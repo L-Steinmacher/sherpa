@@ -1,5 +1,5 @@
-
-import { DataFunctionArgs, json, LoaderArgs } from "@remix-run/node"
+import type { DataFunctionArgs} from "@remix-run/node";
+import { json } from "@remix-run/node";
 import { useCatch, useLoaderData, useParams } from "@remix-run/react";
 import { prisma } from "~/utils/db.server";
 export async function loader({ params }: DataFunctionArgs) {
@@ -11,28 +11,31 @@ export async function loader({ params }: DataFunctionArgs) {
       users: true,
       messages: true,
     },
-  })
-  return json(chat)
-};
+  });
+  if (!chat) {
+    throw new Response("Chat not found", { status: 404 });
+  }
+  return json(chat);
+}
 
 export default function ChatRoute() {
-  const data = useLoaderData()
+  const data = useLoaderData();
   return (
     <div>
       <h1>Chat Route</h1>
       <pre>{JSON.stringify(data, null, 2)}</pre>
     </div>
-  )
-};
+  );
+}
 
 export function CatchBoundary() {
   const caught = useCatch();
   const params = useParams();
 
-    if (caught.status === 404) {
-        return <div>Chat {params.chatId} not found</div>
-    }
-    throw new Error(`Unexpected error: ${caught.status} ${caught.statusText}`)
+  if (caught.status === 404) {
+    return <div>Chat {params.chatId} not found</div>;
+  }
+  throw new Error(`Unexpected error: ${caught.status} ${caught.statusText}`);
 }
 export function ErrorBoundary({ error }: { error: Error }) {
   return (

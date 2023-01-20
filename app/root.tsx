@@ -1,4 +1,4 @@
-import { DataFunctionArgs, LinksFunction, MetaFunction, redirect } from "@remix-run/node";
+import type { DataFunctionArgs,LinksFunction,MetaFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import {
   Links,

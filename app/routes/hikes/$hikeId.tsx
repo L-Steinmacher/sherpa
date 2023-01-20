@@ -1,4 +1,5 @@
-import { DataFunctionArgs, json } from "@remix-run/node";
+import type { DataFunctionArgs} from "@remix-run/node";
+import { json } from "@remix-run/node";
 import { useCatch, useLoaderData } from "@remix-run/react";
 import invariant from "tiny-invariant";
 import { prisma } from "~/utils/db.server";
@@ -14,11 +15,11 @@ export async function loader(params: DataFunctionArgs) {
   }
 
   return json({ hike });
-};
+}
 
 export default function HikeRoute() {
   const data = useLoaderData();
-  invariant(data.hike, "hike is missing...")
+  invariant(data.hike, "hike is missing...");
   return (
     <div>
       <h1>{data.hike.name}</h1>
@@ -34,9 +35,7 @@ export function CatchBoundary() {
     <div>
       <h1>Caught</h1>
       <p>Status: {caught.status}</p>
-      <pre>
-        {JSON.stringify(caught.data, null, 2)}
-      </pre>
+      <pre>{JSON.stringify(caught.data, null, 2)}</pre>
     </div>
   );
 }
