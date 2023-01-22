@@ -149,7 +149,8 @@ export default function Join() {
                 </div>
               )}
             </div>
-
+            </div>
+            <div>
             <label
               htmlFor="email"
               className="block text-sm font-medium text-gray-700"

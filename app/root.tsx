@@ -1,4 +1,4 @@
-import type { DataFunctionArgs,LinksFunction,MetaFunction } from "@remix-run/node";
+import type { DataFunctionArgs,LinksFunction,V2_MetaFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import {
   Links,
@@ -17,11 +17,13 @@ export const links: LinksFunction = () => {
   return [{ rel: "stylesheet", href: tailwindStylesheetUrl }];
 };
 
-export const meta: MetaFunction = () => ({
-  charset: "utf-8",
-  title: "Sherpa",
-  viewport: "width=device-width,initial-scale=1",
-});
+export const meta: V2_MetaFunction = () => {
+	return [
+		{ title: 'Sherpa' },
+		{ charSet: 'utf-8' },
+		{ name: 'viewport', content: 'width=device-width,initial-scale=1' },
+	]
+}
 
 export async function loader({ request }: DataFunctionArgs) {
   return json({
