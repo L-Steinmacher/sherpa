@@ -52,6 +52,7 @@ export async function requireUserId(request: Request) {
   const loginParams = new URLSearchParams([
     ["redirectTo", `${requestUrl.pathname}${requestUrl.search}`],
   ]);
+  console.log("requireUserId", loginParams);
   const failureRedirect = `/login?${loginParams}`;
   const userId = await authenticator.isAuthenticated(request, {
     failureRedirect,
