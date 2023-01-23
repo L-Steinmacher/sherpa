@@ -1,12 +1,11 @@
 import type { DataFunctionArgs} from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { Link, Outlet, useLoaderData } from "@remix-run/react";
-import { requireUserId } from "~/utils/auth.server";
+import { requireUserId } from "~/session.server";
 import { prisma } from "~/utils/db.server";
 
 export async function loader({ request }: DataFunctionArgs) {
   const userId = await requireUserId(request);
-
   const adventures = await prisma.adventure.findMany({
     where: {
       OR: [{ hikerId: userId }, { sherpaId: userId }],
@@ -22,7 +21,6 @@ export async function loader({ request }: DataFunctionArgs) {
 
 export default function AdventuresRoute() {
   const data = useLoaderData<typeof loader>();
-
 
   return (
     <div>

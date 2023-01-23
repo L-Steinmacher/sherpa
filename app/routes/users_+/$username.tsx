@@ -1,7 +1,14 @@
 import type { DataFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { Outlet, useCatch, useLoaderData, useParams } from "@remix-run/react";
+import {
+  Link,
+  Outlet,
+  useCatch,
+  useLoaderData,
+  useParams,
+} from "@remix-run/react";
 import invariant from "tiny-invariant";
+import { useOptionalUser } from "~/utils";
 import { prisma } from "~/utils/db.server";
 
 export async function loader({ params }: DataFunctionArgs) {
@@ -79,6 +86,10 @@ export async function loader({ params }: DataFunctionArgs) {
 export default function UserRoute() {
   const data = useLoaderData();
   const user = data.user;
+  const loggedInUser = useOptionalUser();
+
+  const isLoggedInUser = loggedInUser?.id === user.id;
+
   invariant(data.user, "user is missing");
   return (
     <div>
@@ -92,8 +103,14 @@ export default function UserRoute() {
       <div className=" ">
         <h2>{user.name}</h2>
         <img src={user.imageUrl} alt={user.name} />
+        {isLoggedInUser && (
+          <div className="container flex m-auto ">
+            <Link to="/user/edit">Edit Profile</Link>
+            <Link to="/adventures">My Adventures</Link>
+            <Link to="/hikes">My Hikes</Link>
+          </div>
+        )}
         <p>{user.bio}</p>
-
       </div>
     </div>
   );
