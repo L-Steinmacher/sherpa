@@ -1,7 +1,10 @@
 import type { DataFunctionArgs} from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { useCatch, useLoaderData, useParams } from "@remix-run/react";
+import invariant from "tiny-invariant";
+import { useOptionalUser } from "~/utils";
 import { prisma } from "~/utils/db.server";
+
 export async function loader({ params }: DataFunctionArgs) {
   const chatId = params.chatId;
   const chat = await prisma.chat.findUnique({
@@ -15,15 +18,32 @@ export async function loader({ params }: DataFunctionArgs) {
   if (!chat) {
     throw new Response("Chat not found", { status: 404 });
   }
-  return json(chat);
+  return json({chat, timestamp: Date.now()});
 }
 
+
+export async function action({ request }: DataFunctionArgs) {
+  const formData = await request.formData();
+
+  return json({ formData });
+};
+
 export default function ChatRoute() {
-  const data = useLoaderData();
+  const data = useLoaderData<typeof loader>();
+  invariant(data.chat, "chat is missing")
+  const isOwnProfile = useOptionalUser();
+
   return (
     <div>
-      <h1>Chat Route</h1>
-      <pre>{JSON.stringify(data, null, 2)}</pre>
+      <details>
+        <summary>Chat Route</summary>
+        <pre>{JSON.stringify(data, null, 2)}</pre>
+      </details>
+
+       {/* an h1 with the chat title (the username of the user you're chatting with) */}
+      <h1>{`Chat with ${data.chat.users.filter(u => u.username !== isOwnProfile?.username)[0].name}`}</h1>
+
+
     </div>
   );
 }

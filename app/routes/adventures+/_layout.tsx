@@ -30,7 +30,7 @@ export default function AdventuresRoute() {
         <ul>
           {data.adventures.map(adventure => (
             <li key={adventure.id}>
-              <Link to={`/adventure/${adventure.id}`}>{adventure.id}</Link>
+              <Link to={`/adventures/${adventure.id}`}>{adventure.id}</Link>
             </li>
           ))}
         </ul>
