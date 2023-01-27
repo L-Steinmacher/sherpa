@@ -56,7 +56,7 @@ export async function loader({ params }: DataFunctionArgs) {
 }
 
 export default function TrailRoute() {
-  const data = useLoaderData();
+  const data = useLoaderData<typeof loader>();
   invariant(data.trail, "trail is missing...");
   return (
     <div>
@@ -69,7 +69,7 @@ export default function TrailRoute() {
         <h1 className="">{data.trail.name}</h1>
         <p>{data.trail.description}</p>
         <span>{data.trail.length} miles</span>
-        <img src={data.trail.imageUrl} alt={data.trail.name} className="" />
+        <img src={data.trail.hikes[0].imageUrl} alt={data.trail.name} className="" />
       </div>
 
       <Outlet />

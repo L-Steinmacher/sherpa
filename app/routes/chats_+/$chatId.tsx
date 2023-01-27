@@ -35,15 +35,13 @@ export default function ChatRoute() {
 
   return (
     <div>
+      <div>
       <details>
         <summary>Chat Route</summary>
         <pre>{JSON.stringify(data, null, 2)}</pre>
       </details>
-
-       {/* an h1 with the chat title (the username of the user you're chatting with) */}
+      </div>
       <h1>{`Chat with ${data.chat.users.filter(u => u.username !== isOwnProfile?.username)[0].name}`}</h1>
-
-
     </div>
   );
 }

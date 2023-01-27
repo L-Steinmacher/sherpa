@@ -29,9 +29,10 @@ async function seed() {
   console.time("Created Trails... 🚶‍♀️");
   const allTrails = await Promise.all(
     Array.from({ length: 20 }, async () => {
+      const name = `${faker.animal.type()} ${faker.word.noun()} Trail`;
       const trail = await prisma.trail.create({
         data: {
-          name: faker.lorem.words(),
+          name,
           description: faker.lorem.paragraph(1),
           latitude: Number(faker.address.latitude()),
           longitude: Number(faker.address.longitude()),
