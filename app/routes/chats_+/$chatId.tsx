@@ -1,23 +1,14 @@
 import type { DataFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { Form, useCatch, useLoaderData, useParams } from "@remix-run/react";
+import { Form, useCatch, useLoaderData, useParams,  } from "@remix-run/react";
+import { useState } from "react";
 import invariant from "tiny-invariant";
 import { requireUserId } from "~/session.server";
 import { useOptionalUser } from "~/utils";
 import { chatEmitter, EVENTS } from "~/utils/chat.server";
 import { prisma } from "~/utils/db.server";
+import { NewMessageChange } from "./$chatId.events";
 
-type Message = {
-  id: String;
-  senderId: String;
-  content: string;
-};
-
-type NewMessageChange = {
-  type: "new";
-  timestamp: number;
-  message: Message;
-};
 
 
 export async function loader({ params }: DataFunctionArgs) {
@@ -80,6 +71,7 @@ export default function ChatRoute() {
   const isOwnProfile = useOptionalUser();
   const { chatId } = useParams();
 
+  const [changes, setChanges] = useState<NewMessageChange[]>([]);
   // TODO: Finish writing the event stream
 
   return (
