@@ -249,7 +249,7 @@ async function seed() {
           },
           createdAt,
           messages: {
-            create: await Promise.all(
+            create:
               Array.from({ length: totalMessages }, (_, index) => {
                 const sentAt = new Date(createdAt.getTime() + 1000 * 3 * index);
                 return {
@@ -263,7 +263,6 @@ async function seed() {
                     : adventure.sherpaId,
                 };
               })
-            ),
           },
         },
       });
