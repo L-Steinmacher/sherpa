@@ -1,15 +1,20 @@
 import type { DataFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { Form, useCatch, useLoaderData, useParams,  } from "@remix-run/react";
+import {
+  useCatch,
+  useFetcher,
+  useLoaderData,
+  useParams,
+} from "@remix-run/react";
 import { useState } from "react";
 import invariant from "tiny-invariant";
 import { requireUserId } from "~/session.server";
 import { useOptionalUser } from "~/utils";
 import { chatEmitter, EVENTS } from "~/utils/chat.server";
 import { prisma } from "~/utils/db.server";
-import { NewMessageChange } from "./$chatId.events";
-
-
+import { useEventSource } from "~/utils/hooks";
+import type { Message, NewMessageChange } from "./$chatId.events";
+import { isMessageChange } from "./$chatId.events";
 
 export async function loader({ params }: DataFunctionArgs) {
   invariant(params.chatId, "chatId is missing");
@@ -26,16 +31,23 @@ export async function loader({ params }: DataFunctionArgs) {
   if (!chat) {
     throw new Response("Chat not found", { status: 404 });
   }
+
+  // type assertion-ish (is there a better way to do this?)
+	// my goal is to ensure that the type we get from prisma for the messages
+	// is the same as the one we get from the emitted changes
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+  let messages: Array<Message> = chat.messages;
+
   return json({ chat, timestamp: Date.now() });
 }
 
 export async function action({ request, params }: DataFunctionArgs) {
-  const formData = await request.formData();
   const userId = await requireUserId(request);
   invariant(params.chatId, "chatId is missing");
+  const formData = await request.formData();
   const { intent, content } = Object.fromEntries(formData);
   invariant(typeof content === "string", "content is invalid");
-
+  console.log("intent", intent, "content", content)
   switch (intent) {
     case "send-message": {
       const newMessage = await prisma.message.create({
@@ -71,8 +83,42 @@ export default function ChatRoute() {
   const isOwnProfile = useOptionalUser();
   const { chatId } = useParams();
 
-  const [changes, setChanges] = useState<NewMessageChange[]>([]);
-  // TODO: Finish writing the event stream
+  const messageFetcher = useFetcher<typeof action>();
+  const [changes, setChanges] = useState <Array<NewMessageChange>>([]);
+
+  useEventSource(`/chats/${chatId}/events`, event   => {
+    let change: unknown;
+    try {
+      change = JSON.parse(event.data);
+      console.log("******************change", change)
+    } catch (error) {
+      console.error("Error parsing event data", event.data);
+    }
+    setChanges(changes => {
+      if (isMessageChange(change)) {
+        return [...changes, change];
+      } else {
+        console.error("Unexpected change", change)
+        return changes;
+      }
+    })
+  });
+
+  const relevantChanges = changes.filter(
+    change => change.timestamp > data.timestamp
+  )
+// TODO: this is not working Fix Event stream
+
+  const messages = [...data.chat.messages];
+
+  for (const change of relevantChanges) {
+    if (change.type === "new") {
+      messages.push(change.message);
+    } else {
+      console.error("Unexpected change", change)
+    }
+  }
+
 
   return (
     <div>
@@ -94,7 +140,6 @@ export default function ChatRoute() {
             const sender = data.chat.users.find(
               (user) => user.id === message.senderId
             );
-            invariant(sender, "sender is missing");
             return (
               <li key={message.id} className="flex items-center">
                 <img
@@ -109,12 +154,29 @@ export default function ChatRoute() {
         </ul>
       </div>
       <hr />
-      {/* TODO: Finish writing the submit and event stream */}
-      <Form method="post">
+
+      <messageFetcher.Form
+        method="post"
+        onSubmit={event => {
+          const formData = event.currentTarget;
+          // Request Animation Frame is used to make sure the event is emitted
+          requestAnimationFrame(() => {
+            formData.reset();
+          });
+        }}
+      >
         <label htmlFor="content">Message</label>
-        <input type="text" name="content" id="content" />
-        <button type="submit">Send</button>
-      </Form>
+        <input
+          type="text"
+          name="content"
+          id="content"
+          className="w-full"
+          placeholder="Type here..."
+        />
+        <button name="intent" value="send-message" type="submit">
+          Send
+        </button>
+      </messageFetcher.Form>
       <div></div>
     </div>
   );
