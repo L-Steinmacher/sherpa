@@ -1,4 +1,4 @@
-import type { DataFunctionArgs } from "@remix-run/node";
+import { DataFunctionArgs, redirect } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import {
   Link,
@@ -107,12 +107,56 @@ export async function loader({ params, request }: DataFunctionArgs) {
   return json({ user });
 }
 
+
+export async function action({ request }: DataFunctionArgs) {
+  const loggedInUserId = await getUserId(request);
+  invariant(loggedInUserId, "user is not logged in");
+  const formData = await request.formData();
+  const {intent} = Object.fromEntries(formData);
+
+  switch (intent) {
+    case 'create-chat': {
+      const currentUser = await prisma.user.findUnique({
+        where: { id: loggedInUserId },
+        select: { id: true },
+      });
+      invariant(currentUser, "user not found");
+      const existingChat = await prisma.chat.findFirst({
+        where: {
+          AND : [
+            { users: { some: { id: { equals: currentUser.id } } } },
+            { users: { some: { id: { equals: loggedInUserId } } } },
+          ],
+        },
+      });
+
+      if (existingChat) {
+        return redirect(`/chats/${existingChat.id}`);
+      }
+      const chat = await prisma.chat.create({
+        data: {
+          users: {
+            connect: [
+              { id: currentUser.id },
+              { id: loggedInUserId},
+            ],
+          },
+        },
+      });
+      return redirect(`/chats/${chat.id}`);
+    }
+    default:
+      throw new Error(`Unknown intent: ${intent}`);
+  }
+};
+
 export default function UserRoute() {
   const data = useLoaderData<typeof loader>();
   const user = data.user;
   const loggedInUser = useOptionalUser();
   const isOwnProfile = loggedInUser?.id === user.id;
   invariant(data.user, "user is missing");
+  const oneOnOneChats = data.user.chats?.filter((chat: any) => chat.users.length === 2);
 
   return (
     <div>
@@ -134,7 +178,7 @@ export default function UserRoute() {
             <Link to="/user/edit">Edit Profile</Link>
             <Link to="/adventures">My Adventures</Link>
             <Link to="/hikes">My Hikes</Link>
-
+          {/* finish ui for chats */}
           </div>
           <hr/>
             {data.user.chats && (

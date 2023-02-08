@@ -1,13 +1,13 @@
-import EventEmitter from "events";
+import { EventEmitter } from 'events'
 
 export const EVENTS = {
-    NEW_MESSAGE: "NEW_MESSAGE",
-};
+	NEW_MESSAGE: 'NEW_MESSAGE',
+}
 
-export let chatEmitter : EventEmitter;
+export let chatEmitter: EventEmitter
 
 declare global {
-    var __chat_emitter__ : EventEmitter;
+	var __chat_emitter__: EventEmitter
 }
 
 // this is needed because in development we don't want to restart
