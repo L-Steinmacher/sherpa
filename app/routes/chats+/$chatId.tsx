@@ -5,7 +5,6 @@ import {
   useFetcher,
   useLoaderData,
   useParams,
-  useRevalidator,
 } from "@remix-run/react";
 import { useState } from "react";
 import invariant from "tiny-invariant";
@@ -52,6 +51,7 @@ export async function action({ request, params }: DataFunctionArgs) {
 
   switch (intent) {
     case "send-message": {
+      debugger
       const newMessage = await prisma.message.create({
         data: {
           senderId: userId,
@@ -71,7 +71,7 @@ export async function action({ request, params }: DataFunctionArgs) {
         message: newMessage,
       };
       chatEmitter.emit(`${EVENTS.NEW_MESSAGE}:${params.chatId}`, change);
-      console.log("*****************************emitted", change);
+      console.log("*****************************emitted", chatEmitter);
       return json({ success: true });
     }
     default: {
@@ -135,8 +135,7 @@ export default function ChatRoute() {
 
       <hr />
       <h1>{`Chat with ${
-        data.chat.users.filter((u) => u.username !== isOwnProfile?.username)[0]
-          .name
+        data.chat.users.filter((u) => u.username !== isOwnProfile?.username)[0].name
       }`}</h1>
       <div>
         <ul>

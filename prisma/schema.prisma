@@ -40,8 +40,6 @@ model Admin {
 
 model ContactInfo {
   id      String  @id @unique @default(cuid())
-  email   String?
-  phone   String?
   address String?
   city    String?
   state   String?
@@ -67,15 +65,15 @@ model Trail {
 
   name        String
   description String
-  length      Int
+  distance    Int
   routeType   String
   elevation   Int
-  latitude    Float
-  longitude   Float
+  lat         String
+  long        String
 
-  hikes      Hike[]
-  sherpas    SherpaTrail[]
-  Adventures Adventure[]
+  hikes       Hike[]
+  sherpas     SherpaTrail[]
+  Adventures  Adventure[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

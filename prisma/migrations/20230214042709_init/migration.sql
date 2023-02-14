@@ -20,8 +20,6 @@ CREATE TABLE "Admin" (
 -- CreateTable
 CREATE TABLE "ContactInfo" (
     "id" TEXT NOT NULL PRIMARY KEY,
-    "email" TEXT,
-    "phone" TEXT,
     "address" TEXT,
     "city" TEXT,
     "state" TEXT,
@@ -45,11 +43,11 @@ CREATE TABLE "Trail" (
     "id" TEXT NOT NULL PRIMARY KEY,
     "name" TEXT NOT NULL,
     "description" TEXT NOT NULL,
-    "length" INTEGER NOT NULL,
+    "distance" INTEGER NOT NULL,
     "routeType" TEXT NOT NULL,
     "elevation" INTEGER NOT NULL,
-    "latitude" REAL NOT NULL,
-    "longitude" REAL NOT NULL,
+    "lat" TEXT NOT NULL,
+    "long" TEXT NOT NULL,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" DATETIME NOT NULL
 );
