@@ -8,6 +8,7 @@ export function useEventSource(
     useEffect(() => {
         const source = new EventSource(href)
         source.addEventListener('message', latestOnMessageRef.current)
+        console.log('useEventSource: added listener', latestOnMessageRef)
         return () => source.close()
     }, [href, latestOnMessageRef])
 }

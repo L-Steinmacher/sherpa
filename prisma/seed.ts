@@ -6,7 +6,7 @@ import { connect } from "http2";
 import { P } from "vitest/dist/global-58e8e951";
 import { typedBoolean } from "~/utils/misc";
 
-import { createUser, createContactInfo, createPassword } from "./seed-utils";
+import { createUser, createContactInfo, createPassword, createTrail } from "./seed-utils";
 
 const prisma = new PrismaClient();
 
@@ -28,17 +28,20 @@ async function seed() {
 
   console.time("Created Trails... 🚶‍♀️");
   const allTrails = await Promise.all(
-    Array.from({ length: 20 }, async () => {
-      const name = `${faker.animal.type()} ${faker.word.noun()} Trail`;
+    Array.from({ length: 30 }, async () => {
+      const routeType = faker.helpers.arrayElement(["loop", "out-and-back"]) as "loop" | "out-and-back";
+      const newTrail = await createTrail("https://api.3geonames.org/randomland.us.json");
+      let name =  newTrail.name? newTrail.name : `${faker.animal.type()} ${faker.word.noun()}`;
+      name = routeType === "loop" ? `${name} Loop` : `${name} Trail` ;
       const trail = await prisma.trail.create({
         data: {
           name,
           description: faker.lorem.paragraph(1),
-          latitude: Number(faker.address.latitude()),
-          longitude: Number(faker.address.longitude()),
-          routeType: faker.helpers.arrayElement(["Easy", "Moderate", "Hard"]),
-          length: faker.datatype.number({ min: 1, max: 20 }),
-          elevation: faker.datatype.number({ min: 100, max: 10000 }),
+          lat: newTrail.lat,
+          long: newTrail.long,
+          routeType,
+          distance: faker.datatype.number({ min: 1, max: 20 }),
+          elevation: Number(newTrail.elevation),
         },
       });
       return trail;

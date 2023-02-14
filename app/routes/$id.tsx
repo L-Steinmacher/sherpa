@@ -13,7 +13,7 @@ export async function loader({ params }: DataFunctionArgs) {
   if (trail) return redirect(`/trails/${trail.id}`);
 
   const user = await prisma.user.findUnique({
-    where: { id: params.id },
+    where: { username: params.id },
     select: { username: true },
   });
   if (user) return redirect(`/users/${user.username}`);

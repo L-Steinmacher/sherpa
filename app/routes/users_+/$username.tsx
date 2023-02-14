@@ -1,6 +1,7 @@
 import { DataFunctionArgs, redirect } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import {
+  Form,
   Link,
   Outlet,
   useCatch,
@@ -51,27 +52,28 @@ export async function loader({ params, request }: DataFunctionArgs) {
           },
         },
       },
-      chats: isLoggedIn ? {
-        where : {
-          users: {
-            some: {
-              id: { equals: isLoggedIn },
+      chats: isLoggedIn
+        ? {
+            where: {
+              users: {
+                some: {
+                  id: { equals: isLoggedIn },
+                },
+              },
             },
-          },
-        },
-        select: {
-          id: true,
-          users: {
             select: {
               id: true,
-              name: true,
-              username: true,
-              imageUrl: true,
+              users: {
+                select: {
+                  id: true,
+                  name: true,
+                  username: true,
+                  imageUrl: true,
+                },
+              },
             },
-          },
-        },
-      }
-      : false,
+          }
+        : false,
       sherpa: {
         select: {
           bio: true,
@@ -107,48 +109,46 @@ export async function loader({ params, request }: DataFunctionArgs) {
   return json({ user });
 }
 
-
-export async function action({ request }: DataFunctionArgs) {
+export async function action({ request, params }: DataFunctionArgs) {
   const loggedInUserId = await getUserId(request);
   invariant(loggedInUserId, "user is not logged in");
   const formData = await request.formData();
-  const {intent} = Object.fromEntries(formData);
+  const { intent } = Object.fromEntries(formData);
 
   switch (intent) {
-    case 'create-chat': {
+    case "create-chat": {
       const currentUser = await prisma.user.findUnique({
-        where: { id: loggedInUserId },
+        where: { username: params.username },
         select: { id: true },
       });
       invariant(currentUser, "user not found");
       const existingChat = await prisma.chat.findFirst({
-        where: {
-          AND : [
-            { users: { some: { id: { equals: currentUser.id } } } },
-            { users: { some: { id: { equals: loggedInUserId } } } },
-          ],
-        },
-      });
+				where: {
+					AND: [
+						{ users: { some: { id: loggedInUserId } } },
+						{ users: { some: { id: currentUser.id } } },
+					],
+				},
+				select: { id: true },
+			})
+			if (existingChat) {
+				return redirect(`/chats/${existingChat.id}`)
+			}
 
-      if (existingChat) {
-        return redirect(`/chats/${existingChat.id}`);
-      }
-      const chat = await prisma.chat.create({
-        data: {
-          users: {
-            connect: [
-              { id: currentUser.id },
-              { id: loggedInUserId},
-            ],
-          },
-        },
-      });
-      return redirect(`/chats/${chat.id}`);
+			const createdChat = await prisma.chat.create({
+				select: { id: true },
+				data: {
+					users: {
+						connect: [{ id: loggedInUserId }, { id: currentUser.id }],
+					},
+				},
+			})
+			return redirect(`/chats/${createdChat.id}`)
     }
     default:
       throw new Error(`Unknown intent: ${intent}`);
   }
-};
+}
 
 export default function UserRoute() {
   const data = useLoaderData<typeof loader>();
@@ -156,8 +156,14 @@ export default function UserRoute() {
   const loggedInUser = useOptionalUser();
   const isOwnProfile = loggedInUser?.id === user.id;
   invariant(data.user, "user is missing");
-  const oneOnOneChats = data.user.chats?.filter((chat: any) => chat.users.length === 2);
-
+  const oneOnOneChat = loggedInUser ?  data.user.chats.find(
+    (chat: any) =>
+      chat.users.length === 2 &&
+      chat.users.every(
+        (u: any) => u.id === loggedInUser?.id || u.id === user.id
+      )
+  ) : null;
+// TODO Chat creation is broken
   return (
     <div>
       <details>
@@ -169,22 +175,24 @@ export default function UserRoute() {
       <Outlet />
       <div className=" ">
         <h2>{user.name}</h2>
-        {
-          user.imageUrl && user.name && <img src={user.imageUrl} alt={user.name} />
-        }
+        {user.imageUrl && user.name && (
+          <img src={user.imageUrl} alt={user.name} />
+        )}
         {isOwnProfile && (
           <>
-          <div className="container flex m-auto ">
-            <Link to="/user/edit">Edit Profile</Link>
-            <Link to="/adventures">My Adventures</Link>
-            <Link to="/hikes">My Hikes</Link>
-          {/* finish ui for chats */}
-          </div>
-          <hr/>
+            <div className="container m-auto flex ">
+              <Link to="/user/edit">Edit Profile</Link>
+              <Link to="/adventures">My Adventures</Link>
+              <Link to="/hikes">My Hikes</Link>
+              {/* finish ui for chats */}
+            </div>
+            <hr />
             {data.user.chats && (
-              <div className="container flex m-auto ">
+              <div className="container m-auto flex ">
                 {data.user.chats.map((chat: any) => {
-                  const otherUser = chat.users.find((u: any) => u.id !== loggedInUser?.id);
+                  const otherUser = chat.users.find(
+                    (u: any) => u.id !== loggedInUser?.id
+                  );
                   return (
                     <Link to={`/chats/${chat.id}`} key={chat.id}>
                       {otherUser?.name}
@@ -196,13 +204,21 @@ export default function UserRoute() {
           </>
         )}
         {!isOwnProfile && (
-          <div className="container flex m-auto ">
-            <Link to="/adventures/new">Go on an Adventure</Link>
-            <Link to="/chat">Chat</Link>
-            </div>
+          <div className="container m-auto flex ">
+            {/* <Link to="/adventures/new">Go on an Adventure</Link> */}
+            {oneOnOneChat ? (
+              <Link to={`/chats/${oneOnOneChat.id}`}>Chat</Link>
+            ) : (
+              <Form method="post">
+                <button type="submit" name="intent" value="create-chat">
+                  Chat
+                </button>
+              </Form>
             )}
+          </div>
+        )}
         {user.hiker && (
-          <div className="container flex m-auto ">
+          <div className="container m-auto flex ">
             <h3>Hiker</h3>
             <p>{user.hiker.bio}</p>
             <h4>Adventures</h4>
@@ -219,21 +235,18 @@ export default function UserRoute() {
             <ul>
               {user.hiker.hikes.map((hike: any) => (
                 <li key={hike.id}>
-                  <Link to={`/trails/${hike.trail.id}`}>
-                    {hike.trail.name}
-                  </Link>
+                  <Link to={`/trails/${hike.trail.id}`}>{hike.trail.name}</Link>
                 </li>
               ))}
             </ul>
           </div>
         )}
         {user.sherpa && (
-          <div className="container flex m-auto ">
+          <div className="container m-auto flex ">
             <h3>Sherpa</h3>
             <p>{user.sherpa.bio}</p>
             <h4>Trails</h4>
             <ul>
-
               {user.sherpa.trails.map((trail: any) => (
                 <li key={trail.id}>
                   <Link to={`/trails/${trail.trail.id}`}>
@@ -254,8 +267,6 @@ export default function UserRoute() {
             </ul>
           </div>
         )}
-
-
       </div>
     </div>
   );

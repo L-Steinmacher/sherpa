@@ -1,14 +1,30 @@
 import type * as P from "@prisma/client";
 import { faker } from "@faker-js/faker";
 import bcrypt from "bcryptjs";
+import { type } from "os";
+
+//url is a string
+export async function createTrail(url: string): Promise<Omit<P.Trail, "id" | "createdAt" | "updatedAt" | "routeType" | "description" | "distance">> {
+  const res = await fetch(url)
+  if (!res.ok) {
+    throw new Error(`unexpected response ${res.statusText}`)
+  }
+  const data = await res.json()
+  const { name, latt, longt, elevation} = data.nearest
+  return {
+    name,
+    lat: latt,
+    long: longt,
+    elevation,
+  }
+
+}
 
 export function createContactInfo(): Omit<
   P.ContactInfo,
   "id" | "userId" | "createdAt" | "updatedAt"
 > {
   return {
-    email: faker.internet.email(),
-    phone: faker.phone.number(),
     address: faker.address.streetAddress(),
     city: faker.address.city(),
     state: faker.address.state(),
