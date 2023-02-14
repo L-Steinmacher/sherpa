@@ -17,9 +17,9 @@ export async function loader({ params }: DataFunctionArgs) {
       id: true,
       name: true,
       description: true,
-      length: true,
-      latitude: true,
-      longitude: true,
+      distance: true,
+      lat: true,
+      long: true,
       hikes: {
         select: {
           id: true,
@@ -68,7 +68,7 @@ export default function TrailRoute() {
       <div>
         <h1 className="">{data.trail.name}</h1>
         <p>{data.trail.description}</p>
-        <span>{data.trail.length} miles</span>
+        <span>{data.trail.distance} miles</span>
         <img src={data.trail.hikes[0].imageUrl} alt={data.trail.name} className="" />
       </div>
 
