@@ -37,29 +37,29 @@ export function isMessageChange(change: any): change is NewMessageChange {
 }
 
 export async function loader({ request, params }: DataFunctionArgs) {
-	const userId = await requireUserId(request)
-	const hasAccess = await prisma.chat.findFirst({
-		where: {
-			id: params.chatId,
-			users: { some: { id: userId } },
-		},
-		select: { id: true },
-	})
-	if (!hasAccess) {
-		return new Response('Access denied', { status: 403 })
-	}
+  const userId = await requireUserId(request);
+  const hasAccess = await prisma.chat.findFirst({
+    where: {
+      id: params.chatId,
+      users: { some: { id: userId } },
+    },
+    select: { id: true },
+  });
+  if (!hasAccess) {
+    return new Response("Access denied", { status: 403 });
+  }
 
-	return eventStream(request, send => {
-		function handler(message: unknown) {
-			if (isMessageChange(message)) {
-				console.log('sending message', message)
-				send('message', JSON.stringify(message))
-			}
-		}
-		const eventType = `${EVENTS.NEW_MESSAGE}:${params.chatId}`
-		chatEmitter.addListener(eventType, handler)
-		return () => {
-			chatEmitter.removeListener(eventType, handler)
-		}
-	})
+  return eventStream(request, (send) => {
+    function handler(message: unknown) {
+      if (isMessageChange(message)) {
+        console.log("sending message", message);
+        send("message", JSON.stringify(message));
+      }
+    }
+    const eventType = `${EVENTS.NEW_MESSAGE}:${params.chatId}`;
+    chatEmitter.addListener(eventType, handler);
+    return () => {
+      chatEmitter.removeListener(eventType, handler);
+    };
+  });
 }

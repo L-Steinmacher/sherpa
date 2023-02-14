@@ -1,9 +1,7 @@
 import type * as P from "@prisma/client";
 import { faker } from "@faker-js/faker";
 import bcrypt from "bcryptjs";
-import { type } from "os";
 
-//url is a string
 export async function createTrail(url: string): Promise<Omit<P.Trail, "id" | "createdAt" | "updatedAt" | "routeType" | "description" | "distance">> {
   const res = await fetch(url)
   if (!res.ok) {
@@ -17,7 +15,6 @@ export async function createTrail(url: string): Promise<Omit<P.Trail, "id" | "cr
     long: longt,
     elevation,
   }
-
 }
 
 export function createContactInfo(): Omit<
