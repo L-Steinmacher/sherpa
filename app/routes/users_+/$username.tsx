@@ -163,7 +163,7 @@ export default function UserRoute() {
         (u: any) => u.id === loggedInUser?.id || u.id === user.id
       )
   ) : null;
-// TODO Chat creation is broken
+
   return (
     <div>
       <details>
@@ -180,7 +180,7 @@ export default function UserRoute() {
         )}
         {isOwnProfile && (
           <>
-            <div className="container m-auto flex ">
+            <div className="container m-auto flex space-x-3">
               <Link to="/user/edit">Edit Profile</Link>
               <Link to="/adventures">My Adventures</Link>
               <Link to="/hikes">My Hikes</Link>
@@ -188,7 +188,8 @@ export default function UserRoute() {
             </div>
             <hr />
             {data.user.chats && (
-              <div className="container m-auto flex ">
+              <div className="container m-auto flex flex-col ">
+                <h3>Chats</h3>
                 {data.user.chats.map((chat: any) => {
                   const otherUser = chat.users.find(
                     (u: any) => u.id !== loggedInUser?.id
@@ -199,6 +200,7 @@ export default function UserRoute() {
                     </Link>
                   );
                 })}
+                <hr />
               </div>
             )}
           </>
