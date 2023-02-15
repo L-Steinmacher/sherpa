@@ -17,7 +17,7 @@ npx create-remix@latest --template remix-run/indie-stack
 - Email/Password Authentication with [cookie-based sessions](https://remix.run/docs/en/v1/api/remix#createcookiesessionstorage)
 - Database ORM with [Prisma](https://prisma.io)
 - Styling with [Tailwind](https://tailwindcss.com/)
-- End-to-end testing with [playwrite](https://cypress.io)
+- End-to-end testing with [playwright](https://playwright.dev/)
 - Local third party request mocking with [MSW](https://mswjs.io)
 - Unit testing with [Vitest](https://vitest.dev) and [Testing Library](https://testing-library.com)
 - Code formatting with [Prettier](https://prettier.io)
@@ -56,16 +56,15 @@ This starts your app in development mode, rebuilding assets on file changes.
 
 The database seed script creates a new user with some data you can use to get started:
 
-- Email: `rachel@remix.run`
-- Password: `racheliscool`
+- Email: `indy@dog.com`
+- Password: `indyiscool`
 
 ### Relevant code:
 
-This is a pretty simple note-taking app, but it's a good example of how you can build a full stack app with Prisma and Remix. The main functionality is creating users, logging in and out, and creating and deleting notes.
+This is a Trail finder to take a hike and sort of a social media platform to connect adventurers to "Sherpas". Sherpas are individuals who have intimate knowledge of the adventure( hikes to start out with ) and will be connected via a realtime chat to offer suggestion such as provisions needed for the adventure including but not limited to clothing, food, water, protection from wildlife, et al. Sherpas will have to upload certifications to verify their skill-set and relevent id and user photos.  This is all of course in the roadmap that is being developed.
 
 - creating users, and logging in and out [./app/models/user.server.ts](./app/models/user.server.ts)
 - user sessions, and verifying them [./app/session.server.ts](./app/session.server.ts)
-- creating, and deleting notes [./app/models/note.server.ts](./app/models/note.server.ts)
 
 ## Deployment
 
@@ -138,30 +137,25 @@ We use GitHub Actions for continuous integration and deployment. Anything that g
 
 ## Testing
 
-### Playwrite
 
-We usePlaywrite for our End-to-End tests in this project. You'll find those in the `cypress` directory. As you make changes, add to an existing file or create a new file in the `cypress/e2e` directory to test your changes.
+### Playwright
 
-We use [`@testing-library/cypress`](https://testing-library.com/cypress) for selecting elements on the page semantically.
+We use Playwright for our End-to-End tests in this project. You'll find those in
+the `tests` directory. As you make changes, add to an existing file or create a
+new file in the `tests` directory to test your changes.
 
-To run these tests in development, run `npm run test:e2e:dev` which will start the dev server for the app as well as the Cypress client. Make sure the database is running in docker as described above.
+To run these tests in development, run `npm run test:e2e:dev` which will start
+the dev server for the app and run Playwright on it.
 
-We have a utility for testing authenticated features without having to go through the login flow:
-
-```ts
-cy.login();
-// you are now logged in as a new user
-```
-
-We also have a utility to auto-delete the user at the end of your test. Just make sure to add this in each test file:
+We have a fixture for testing authenticated features without having to go
+through the login flow:
 
 ```ts
-afterEach(() => {
-  cy.cleanupUser();
-});
+test('my test', async ({ page, login }) => {
+	const user = await login()
+	// you are now logged in
+})
 ```
-
-That way, we can keep your local db clean and keep your tests isolated from one another.
 
 ### Vitest
 
