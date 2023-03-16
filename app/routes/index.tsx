@@ -1,3 +1,9 @@
+import { type V2_MetaFunction } from "@remix-run/node";
+
+export const meta: V2_MetaFunction = ({ matches }) => {
+	return matches.find(match => match.route.id === 'root')?.meta ?? []
+}
+
 export default function Index() {
   return (
     <main>

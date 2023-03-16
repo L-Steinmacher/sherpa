@@ -34,7 +34,7 @@ export async function action({ request }: ActionArgs) {
     );
   }
 
-  if (password.length < 8) {
+  if (password.length < 4) {
     return json(
       { errors: { email: null, password: "Password is too short" } },
       { status: 400 }
