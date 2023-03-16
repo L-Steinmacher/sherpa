@@ -40,6 +40,7 @@ export async function loader({ request }: DataFunctionArgs) {
 }
 
 export default function App() {
+
   return (
     <>
       <Head />
