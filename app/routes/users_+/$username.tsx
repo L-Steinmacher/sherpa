@@ -109,41 +109,47 @@ export async function loader({ params, request }: DataFunctionArgs) {
   return json({ user });
 }
 
+const createChat = async function({
+  loggedInUserId,
+  username,
+}: {
+  loggedInUserId: string;
+  username: string;
+}) {
+  const existingChat = await prisma.chat.findFirst({
+    where: {
+      AND: [
+        { users: { some: { id: loggedInUserId } } },
+        { users: { some: { id: username } } },
+      ],
+    },
+    select: { id: true },
+  })
+  if (existingChat) {
+    return redirect(`/chats/${existingChat.id}`)
+  }
+  const createdChat = await prisma.chat.create({
+    select: { id: true },
+    data: {
+      users: {
+        connect: [{ id: loggedInUserId }, { username }],
+      },
+    },
+  })
+  return redirect(`/chats/${createdChat.id}`)
+}
+
 export async function action({ request, params }: DataFunctionArgs) {
   const loggedInUserId = await getUserId(request);
   invariant(loggedInUserId, "user is not logged in");
   const formData = await request.formData();
   const { intent } = Object.fromEntries(formData);
+  const username = params.username;
+  invariant(username, "username is missing");
 
   switch (intent) {
     case "create-chat": {
-      const currentUser = await prisma.user.findUnique({
-        where: { username: params.username },
-        select: { id: true },
-      });
-      invariant(currentUser, "user not found");
-      const existingChat = await prisma.chat.findFirst({
-				where: {
-					AND: [
-						{ users: { some: { id: loggedInUserId } } },
-						{ users: { some: { id: currentUser.id } } },
-					],
-				},
-				select: { id: true },
-			})
-			if (existingChat) {
-				return redirect(`/chats/${existingChat.id}`)
-			}
-
-			const createdChat = await prisma.chat.create({
-				select: { id: true },
-				data: {
-					users: {
-						connect: [{ id: loggedInUserId }, { id: currentUser.id }],
-					},
-				},
-			})
-			return redirect(`/chats/${createdChat.id}`)
+      return createChat({ loggedInUserId, username })
     }
     default:
       throw new Error(`Unknown intent: ${intent}`);
@@ -153,9 +159,10 @@ export async function action({ request, params }: DataFunctionArgs) {
 export default function UserRoute() {
   const data = useLoaderData<typeof loader>();
   const user = data.user;
+  invariant(user, "user is missing");
+
   const loggedInUser = useOptionalUser();
   const isOwnProfile = loggedInUser?.id === user.id;
-  invariant(data.user, "user is missing");
   const oneOnOneChat = loggedInUser ?  data.user.chats.find(
     (chat: any) =>
       chat.users.length === 2 &&
@@ -165,7 +172,7 @@ export default function UserRoute() {
   ) : null;
 
   return (
-    <div>
+    <div className=" ">
       <details>
         <summary>Loader Data</summary>
 
