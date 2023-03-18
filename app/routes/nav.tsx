@@ -25,7 +25,7 @@ export function Nav() {
   return (
     <div className="px-5vw py-9 lg:py-12">
       <nav>
-        <ul className="text-primary max-w-8xl container mx-auto flex items-center justify-between ">
+        <ul className="text-primary max-w-8xl  container mx-auto flex items-center justify-between ">
           <li>
             <Link to="/">Home</Link>
           </li>
