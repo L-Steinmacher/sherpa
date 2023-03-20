@@ -55,13 +55,16 @@
     "@remix-run/serve": "^1.10.1",
     "@remix-run/server-runtime": "^1.10.1",
     "bcryptjs": "^2.4.3",
+    "clsx": "^1.2.1",
     "concurrently": "^7.6.0",
+    "downshift": "^7.4.1",
     "isbot": "^3.6.3",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "remix-auth": "^3.4.0",
     "remix-auth-form": "^1.3.0",
     "remix-island": "^0.1.2",
+    "spin-delay": "^1.2.0",
     "tiny-invariant": "^1.3.1"
   },
   "devDependencies": {
