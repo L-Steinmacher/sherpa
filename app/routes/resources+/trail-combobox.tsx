@@ -26,9 +26,15 @@ export async function loader({request}: DataFunctionArgs) {
   invariant(typeof query === "string", "query is required");
   const trails = await prisma.trail.findMany({
     where: {
-      name: {
-        contains: query,
-      },
+
+        name: {
+          contains: query,
+        },
+
+    },
+    select: {
+      id: true,
+      name: true,
     },
     take: 10,
   });
@@ -41,10 +47,12 @@ type Trail = SerializeFrom<typeof loader>['trails'][number]
 export function TrailCombobox({
     error,
     name,
+    defaultSelectedTrail,
     onChange,
   }:{
     error?: string | null,
     name : string,
+    defaultSelectedTrail?: Trail | null,
     onChange?: (selectedTrail: Trail | null | undefined) => void,
   }) {
   const trailFetcher = useFetcher<typeof loader>();
