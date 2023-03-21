@@ -10,6 +10,7 @@ module.exports = {
 	ignoredRouteFiles: ['**/*'],
 	future: {
 		v2_meta: true,
+		unstable_tailwind: true,
 	},
 	routes: async defineRoutes => {
 		return flatRoutes('routes', defineRoutes, {
