@@ -1,4 +1,4 @@
-import type { DataFunctionArgs, SerializeFrom } from "@remix-run/node";
+import { DataFunctionArgs, json, SerializeFrom } from "@remix-run/node";
 import { useFetcher } from "@remix-run/react";
 import { useCombobox } from "downshift";
 import { useId, useState } from "react";
@@ -20,29 +20,25 @@ const requireUser = async (request: Request) => {
 }
 
 export async function loader({request}: DataFunctionArgs) {
-  await requireUser(request)
   const url = new URL(request.url);
   const query = url.searchParams.get("query");
   invariant(typeof query === "string", "query is required");
-  const trails = await prisma.trail.findMany({
-    where: {
-
-        name: {
-          contains: query,
-        },
-
-    },
-    select: {
-      id: true,
-      name: true,
-    },
-    take: 10,
-  });
-
-  return ({ trails });
+  const trails =  await prisma.trail.findMany({
+      where: {
+          OR : [{name : {contains : query}}]
+      },
+      select: {
+        id: true,
+        name: true,
+        routeType: true,
+      },
+      take: 10,
+    })
+  return json({trails});
 };
 
-type Trail = SerializeFrom<typeof loader>['trails'][number]
+
+type Trail = SerializeFrom<typeof loader>['trails'][number];
 
 export function TrailCombobox({
     error,
@@ -57,21 +53,22 @@ export function TrailCombobox({
   }) {
   const trailFetcher = useFetcher<typeof loader>();
   const id = useId();
-  const trails = trailFetcher.data?.trails ?? [];
-  type Trail = typeof trails[number];
-  const [selectedTrail, setSelectedTrail] = useState<Trail | null | undefined>(null);
+  const trails = (trailFetcher.data?.trails ?? []) as Array<Trail>;
+  const [selectedTrail, setSelectedTrail] = useState<Trail | null | undefined>(defaultSelectedTrail);
 
   const cb = useCombobox<Trail>({
     id,
     onSelectedItemChange: ({selectedItem}) => {
       setSelectedTrail(selectedItem);
+      requestAnimationFrame(() => onChange?.(selectedItem));
     },
     items: trails,
+    defaultSelectedItem: defaultSelectedTrail,
     itemToString: (item) => item ? item.name : "",
     onInputValueChange: changes => {
       trailFetcher.submit(
         { query: changes.inputValue ?? "" },
-        { method: "get", action: 'resources/trails' },
+        { method: "get", action: 'resources/trails-combobox' },
       );
     },
   })

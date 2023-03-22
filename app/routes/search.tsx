@@ -1,4 +1,5 @@
-import { DataFunctionArgs, json } from '@remix-run/node';
+import type { DataFunctionArgs} from '@remix-run/node';
+import { json } from '@remix-run/node';
 import {
   Form,
   useLoaderData,
@@ -11,51 +12,55 @@ import { TrailCombobox } from './resources+/trail-combobox';
 
 export async function loader({ request }: DataFunctionArgs) {
   const searchParams = new URL(request.url).searchParams;
+  const searchParamsIsEmpty = !searchParams.toString();
+  if (searchParamsIsEmpty) {
+    return json({ trails: [] });
+  }
+  const trailId = searchParams.get('trailId');
   // TODO: validate searchParams and figure out what to do here!
 
-  const trails = await prisma.trail.findMany({
+  const trails = await prisma.trail.findUnique({
     where: {
-      name: {
-        contains: searchParams.get('name') ?? '',
-      },
+      id: trailId,
     },
-    take: 10,
     select: {
       id: true,
       name: true,
+      routeType: true,
     },
   });
+
   return json({ trails });
 }
 
 export default function Search() {
   const data = useLoaderData<typeof loader>();
-  const searchParams = useSearchParams();
+  const [ searchParams ] = useSearchParams();
   const submit = useSubmit();
   const formRef = useRef<HTMLFormElement>(null);
   const trails = data.trails
+  console.log(trails)
+  console.log(trails.find(t => t.id === searchParams.get('trailId')))
 
-
-  // TODO fix defaultSelectedTrails
   return (
     <div className="container">
-      <h1>Search Results</h1>
+      <h1>Search the Trails</h1>
       <hr />
       <Form ref={formRef} action="search">
         <TrailCombobox
           name="trailId"
-          defaultSelectedTrails={trails.find(
-            t => t.name === searchParams.get('name'),
-          )}
-          onChange={selectedTrail => {
-            if (selectedTrail) {
-              submit(formRef.current)
-            }
-          }}
-        />
+          defaultSelectedTrail={trails?.find(
+            t => t.id === searchParams.get('trailId'),
+            )}
+            onChange={selectedTrail => {
+              if (selectedTrail) {
+                submit(formRef.current)
+              }
+            }}
+            />
       </Form>
       <pre>{JSON.stringify(data, null, 2)}</pre>
+      {/* //TODO: add search results here */}
     </div>
-    //TODO: add search results here
   );
 }
