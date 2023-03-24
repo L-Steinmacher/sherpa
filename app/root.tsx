@@ -38,7 +38,7 @@ export async function loader({ request }: DataFunctionArgs) {
 
 export default function App() {
   return (
-    <html lang="en" className="h-full">
+    <html lang="en" className="h-full scroll-smooth">
       <head>
         <Meta />
         <Links />

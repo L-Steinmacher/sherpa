@@ -3,6 +3,7 @@ import { Authenticator } from "remix-auth";
 import { FormStrategy } from "remix-auth-form";
 import invariant from "tiny-invariant";
 import { verifyLogin } from "~/models/user.server"
+import { prisma } from "./db.server";
 
 // The code in this file is borrowed from Kent C. Dodds Rocket Rental App
 
