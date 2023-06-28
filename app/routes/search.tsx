@@ -32,6 +32,9 @@ export async function loader({ request }: DataFunctionArgs) {
       id: true,
       name: true,
       routeType: true,
+      distance: true,
+      lat: true,
+      long: true,
     },
   })
 
@@ -44,13 +47,16 @@ export default function Search() {
   const submit = useSubmit();
   const formRef = useRef<HTMLFormElement>(null);
   const trails  = data.trails;
-
+  const geo = navigator.geolocation.getCurrentPosition;
   console.log("search func", trails)
+  console.log("navigator", geo)
+
 
   return (
     <div className="container">
       <h1>Search the Trails</h1>
       <hr />
+
       <Form ref={formRef} action="search">
         <TrailCombobox
           name="trailId"

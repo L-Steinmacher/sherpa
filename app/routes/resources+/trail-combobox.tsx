@@ -11,9 +11,7 @@ import { Spinner } from '~/components/spinner';
 
 export async function loader({ request }: DataFunctionArgs) {
   const url = new URL(request.url);
-  console.log("combo loader",url);
   const query = url.searchParams.get('query');
-  console.log('query', query);
   invariant(typeof query === 'string', 'query is required');
   const trails = await prisma.trail.findMany({
     where: {
@@ -26,7 +24,6 @@ export async function loader({ request }: DataFunctionArgs) {
     },
     take: 10,
   });
-  console.log(trails);
   return json({ trails });
 }
 
@@ -80,7 +77,7 @@ export function TrailCombobox({
       <div className="flex flex-wrap items-center gap-1">
         <label {...cb.getLabelProps()}>trail</label>
         {error ? (
-          <em id="trail-error" className="text-d-p-xs text-red-600">
+          <em id="trail-error" className="text-red-600 text-d-p-xs">
             {error}
           </em>
         ) : null}

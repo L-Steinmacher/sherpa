@@ -30,7 +30,6 @@ export const authenticator = new Authenticator<string>(sessionStorage, {
 
 authenticator.use(
   new FormStrategy(async ({ form }) => {
-    console.log("FormStrategy");
     const email = form.get("email");
     const password = form.get("password");
 
