@@ -22,9 +22,10 @@ export function isMessage(message: any): message is Message {
     typeof message === "object" &&
     typeof message.id === "string" &&
     typeof message.senderId === "string" &&
-    typeof message.message === "string"
+    typeof message.content === "string"  // changed this line
   );
 }
+
 
 export function isMessageChange(change: any): change is NewMessageChange {
   return (
@@ -52,7 +53,6 @@ export async function loader({ request, params }: DataFunctionArgs) {
   return eventStream(request, (send) => {
     function handler(message: unknown) {
       if (isMessageChange(message)) {
-        console.log("sending message", message);
         send("message", JSON.stringify(message));
       }
     }
@@ -63,3 +63,4 @@ export async function loader({ request, params }: DataFunctionArgs) {
     };
   });
 }
+

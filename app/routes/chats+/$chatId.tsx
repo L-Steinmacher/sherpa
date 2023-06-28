@@ -1,7 +1,7 @@
 import type { DataFunctionArgs } from '@remix-run/node';
 import { json } from '@remix-run/node';
-import { useFetcher, useLoaderData, useParams } from '@remix-run/react';
-import { useState } from 'react';
+import { Link, useCatch, useFetcher, useLoaderData, useParams } from '@remix-run/react';
+import { useEffect, useState } from 'react';
 import invariant from 'tiny-invariant';
 import { requireUserId } from '~/session.server';
 import { chatEmitter, EVENTS } from '~/utils/chat.server';
@@ -18,7 +18,7 @@ export async function loader({ request, params }: DataFunctionArgs) {
     where: { id: chatId, users: { some: { id: userId } } },
     select: {
       id: true,
-      users: { select: { id: true, name: true, imageUrl: true } },
+      users: { select: { id: true, name: true, imageUrl: true, username: true } },
       messages: { select: { id: true, senderId: true, content: true } },
     },
   });
@@ -43,7 +43,7 @@ export async function action({ request, params }: DataFunctionArgs) {
   invariant(typeof content === 'string', 'content is invalid');
 
   switch (intent) {
-    case 'send-message': {
+    case "send-message": {
       const newMessage = await prisma.message.create({
         data: {
           senderId: userId,
@@ -63,7 +63,6 @@ export async function action({ request, params }: DataFunctionArgs) {
         message: newMessage,
       };
       chatEmitter.emit(`${EVENTS.NEW_MESSAGE}:${params.chatId}`, change);
-      console.dir(chatEmitter);
       return json({ success: true });
     }
     default: {
@@ -79,6 +78,8 @@ export default function ChatRoute() {
   const data = useLoaderData<typeof loader>();
   const messageFetcher = useFetcher<typeof action>();
   const [changes, setChanges] = useState<Array<NewMessageChange>>([]);
+  useEffect(() => {
+  }, [changes]);
 
   useEventSource(`/chats/${chatId}/events`, event => {
     let change: NewMessageChange;
@@ -126,11 +127,13 @@ export default function ChatRoute() {
           );
           return (
             <li key={message.id} className="flex items-center">
+              <Link to={`/users/${sender?.username ?? ''}`}>
               <img
                 src={sender?.imageUrl ?? ''}
                 alt={sender?.name ?? 'Unknown user'}
-                className="h-8 w-8 rounded-full"
+                className="w-8 h-8 rounded-full"
               />
+              </Link>
               <div className="ml-2">{message.content}</div>
             </li>
           );
@@ -156,6 +159,31 @@ export default function ChatRoute() {
           Send
         </button>
       </messageFetcher.Form>
+    </div>
+  );
+}
+
+export function ErrorBoundary({ error }: { error: Error }) {
+  return (
+    <div>
+      <h1>Error</h1>
+      <p>{error.message}</p>
+      <p>The stack trace is:</p>
+      <pre>{error.stack}</pre>
+    </div>
+  );
+}
+
+export function CatchBoundary() {
+  const caught = useCatch();
+
+  return (
+    <div>
+      <h1>Caught</h1>
+      <p>Status: {caught.status}</p>
+      <pre>
+        <code>{JSON.stringify(caught.data, null, 2)}</code>
+      </pre>
     </div>
   );
 }
