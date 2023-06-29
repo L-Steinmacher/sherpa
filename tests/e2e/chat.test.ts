@@ -6,14 +6,14 @@ import { authenticator, commitSession, getPasswordHash, getSession } from '~/uti
 import { prisma } from '~/utils/db.server'
 
 export const test = base.extend<{
-	login: (user?: { id: string }) => ReturnType<typeof LoginPage>
+    login: (user?: { id: string }) => ReturnType<typeof LoginPage>
 }>({
-	login: [
-		async ({ page, baseURL }, use) => {
-			use(user => LoginPage({ page, baseURL, user }))
-		},
-		{ auto: true },
-	],
+    login: [
+        async ({ page, baseURL }, use) => {
+            use(user => LoginPage({ page, baseURL, user }))
+        },
+        { auto: true },
+    ],
 })
 const { expect } = test
 
@@ -54,27 +54,28 @@ async function LoginPage({
         where: { id: givenUser.id },
         select: { id: true, name: true, username: true, email: true },
     }) : await NewUser()
-    console.log('baseURL in LoginPage:', baseURL);
     const session = await getSession()
     session.set(authenticator.sessionKey, user.id)
+
     const cookieSession = await commitSession(session)
     const { _session } = parse(cookieSession)
+
+    const cookie = {
+        name: '_session',
+        value: _session,
+        url: baseURL,
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+    }
     page.context().addCookies([
-        {
-            name: '_session',
-            value: _session,
-            url: baseURL,
-            path: '/',
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-        },
+        cookie,
     ])
     return user
 }
 
-test('Check LoginPage function', async ({ page, baseURL }) => {
+test('Check LoginPage function', async ({ page }) => {
     // Use a valid URL for your test
-    // const baseURL = 'http://localhost:3000/';
+    const baseURL = 'http://localhost:3000/';
     console.log('baseURL in test:', baseURL);
     // Call the LoginPage function and log the result
     const user = await LoginPage({ page, baseURL: baseURL });
@@ -85,15 +86,31 @@ test('Check LoginPage function', async ({ page, baseURL }) => {
 
 test('multi user chat', async ({ browser, page: hikerPage, baseURL }) => {
     const sherpaPage = await (await browser.newContext()).newPage()
-    // const hiker = await LoginPage({ page: hikerPage, baseURL })
-    const sherpa = await LoginPage({ page: sherpaPage, baseURL: baseURL })
+
+    const hiker = await LoginPage({ page: hikerPage, baseURL })
+    const sherpa = await LoginPage({ page: sherpaPage, baseURL })
     const regexPattern = /\/chats\/[a-zA-Z0-9]+/;
-    console.log(`${baseURL}, ${sherpa.username}`)
-    await hikerPage.goto(`${baseURL}/users/${ sherpa.username }`);
-    await hikerPage.getByRole('link', { name: /chat/ }).click();
-    await sherpaPage.goto(`/me`);
+
+    await prisma.sherpa.create({
+        data: {
+            userId: sherpa.id,
+        },
+    })
+    prisma.hiker.create({
+        data: {
+            userId: hiker.id,
+        },
+    })
+
+    await hikerPage.goto(`users/${ hiker.username }`);
+    await sherpaPage.goto(`users/${ sherpa.username }`);
+
+    await hikerPage.goto(`users/${ sherpa.username }`);
+    await hikerPage.getByRole('button', { name: /chat/i }).click();
+
     await expect(hikerPage).toHaveURL(new RegExp(`^${regexPattern.source}$`));
-    // await hikerPage.getByPlaceholder(/type a message.../).click();
+
+    await hikerPage.getByPlaceholder(/type a message.../).click();
 
     // const hikerMessage = faker.lorem.sentence();
     // await page.getByPlaceholder('Type a message...').fill(hikerMessage);
