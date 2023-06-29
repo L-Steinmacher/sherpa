@@ -1,9 +1,9 @@
+import bcrypt from 'bcryptjs'
 import { createCookieSessionStorage } from "@remix-run/node";
 import { Authenticator } from "remix-auth";
 import { FormStrategy } from "remix-auth-form";
 import invariant from "tiny-invariant";
 import { verifyLogin } from "~/models/user.server"
-import { prisma } from "./db.server";
 
 // The code in this file is borrowed from Kent C. Dodds Rocket Rental App
 
@@ -57,5 +57,10 @@ export async function requireUserId(request: Request) {
 	const userId = await authenticator.isAuthenticated(request, {
 		failureRedirect,
 	})
-	return userId
+	return userId;
+}
+
+export async function getPasswordHash(password: string) {
+  const hash = await bcrypt.hash(password, 10);
+  return hash;
 }

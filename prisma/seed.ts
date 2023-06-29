@@ -1,9 +1,6 @@
 import { faker } from "@faker-js/faker";
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
-import { create } from "domain";
-import { connect } from "http2";
-import { P } from "vitest/dist/global-58e8e951";
 import { typedBoolean } from "~/utils/misc";
 
 import { createUser, createContactInfo, createPassword, createTrail } from "./seed-utils";
