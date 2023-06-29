@@ -15,7 +15,7 @@ export async function loader({ params }: DataFunctionArgs) {
         select: { user: { select: { id: true, name: true, imageUrl: true } } },
       },
       trail: {
-        select: { id: true, name: true, length: true },
+        select: { id: true, name: true, distance: true },
       },
       startDate: true,
       endDate: true,
