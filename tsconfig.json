@@ -18,7 +18,7 @@
     "paths": {
       "~/*": ["./app/*"],
 			"prisma/*": ["./prisma/*"],
-			"test/*": ["./test/*"]
+			"test/*": ["./tests/*"]
     },
     "skipLibCheck": true,
 

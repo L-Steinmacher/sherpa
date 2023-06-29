@@ -1,5 +1,4 @@
-import { DataFunctionArgs, redirect } from "@remix-run/node";
-import { json } from "@remix-run/node";
+import { DataFunctionArgs, redirect, json } from "@remix-run/node";
 import {
   Form,
   Link,
@@ -8,7 +7,6 @@ import {
   useLoaderData,
   useParams,
 } from "@remix-run/react";
-import { Key } from "react";
 import invariant from "tiny-invariant";
 import { getUserId } from "~/session.server";
 import { useOptionalUser } from "~/utils";
@@ -172,7 +170,7 @@ export default function UserRoute() {
   ) : null;
 
   return (
-    <div className=" ">
+    <div className="">
       <details>
         <summary>Loader Data</summary>
 
@@ -187,7 +185,7 @@ export default function UserRoute() {
         )}
         {isOwnProfile && (
           <>
-            <div className="container m-auto flex space-x-3">
+            <div className="container flex m-auto space-x-3">
               <Link to="/user/edit">Edit Profile</Link>
               <Link to="/adventures">My Adventures</Link>
               <Link to="/hikes">My Hikes</Link>
@@ -195,7 +193,7 @@ export default function UserRoute() {
             </div>
             <hr />
             {data.user.chats && (
-              <div className="container m-auto flex flex-col ">
+              <div className="container flex flex-col m-auto ">
                 <h3>Chats</h3>
                 {data.user.chats.map((chat: any) => {
                   const otherUser = chat.users.find(
@@ -213,7 +211,7 @@ export default function UserRoute() {
           </>
         )}
         {!isOwnProfile && (
-          <div className="container m-auto flex ">
+          <div className="container flex m-auto ">
             {/* <Link to="/adventures/new">Go on an Adventure</Link> */}
             {oneOnOneChat ? (
               <Link to={`/chats/${oneOnOneChat.id}`}>Chat</Link>
@@ -227,7 +225,7 @@ export default function UserRoute() {
           </div>
         )}
         {user.hiker && (
-          <div className="container m-auto flex ">
+          <div className="container flex m-auto ">
             <h3>Hiker</h3>
             <p>{user.hiker.bio}</p>
             <h4>Adventures</h4>
@@ -251,7 +249,7 @@ export default function UserRoute() {
           </div>
         )}
         {user.sherpa && (
-          <div className="container m-auto flex ">
+          <div className="container flex m-auto ">
             <h3>Sherpa</h3>
             <p>{user.sherpa.bio}</p>
             <h4>Trails</h4>
