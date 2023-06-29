@@ -16,7 +16,6 @@ import {
 import tailwindStylesheetUrl from "./styles/tailwind.css";
 import { getUser } from "./session.server";
 import { Nav } from "./routes/nav";
-import { useId, useState } from "react";
 
 export const links: LinksFunction = () => {
   return [{ rel: "stylesheet", href: tailwindStylesheetUrl }];
@@ -55,18 +54,4 @@ export default function App() {
       </body>
     </html>
   );
-}
-
-function NoHydrate({
-	getHTML,
-	...rest
-}: { getHTML?: () => string } & JSX.IntrinsicElements['div']) {
-	const id = useId()
-	const [html] = useState(() => {
-		if (typeof document === 'undefined') return getHTML?.() ?? ''
-		const el = document.getElementById(id)
-		if (!el) return getHTML?.() ?? ''
-		return el.innerHTML
-	})
-	return <div {...rest} id={id} dangerouslySetInnerHTML={{ __html: html }} />
 }

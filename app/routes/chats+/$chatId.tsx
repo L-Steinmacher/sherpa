@@ -3,12 +3,13 @@ import { json } from '@remix-run/node';
 import { Link, useCatch, useFetcher, useLoaderData, useParams } from '@remix-run/react';
 import { useEffect, useState } from 'react';
 import invariant from 'tiny-invariant';
-import { requireUserId } from '~/session.server';
 import { chatEmitter, EVENTS } from '~/utils/chat.server';
 import { prisma } from '~/utils/db.server';
 import { useEventSource } from '~/utils/hooks';
 import type { Message, NewMessageChange } from './$chatId.events';
 import { isMessageChange } from './$chatId.events';
+import { requireUserId } from '~/session.server';
+
 
 export async function loader({ request, params }: DataFunctionArgs) {
   invariant(params.chatId, 'chatId is missing');

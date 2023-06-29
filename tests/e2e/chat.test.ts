@@ -1,4 +1,5 @@
 // import { faker } from '@faker-js/faker'
+import { faker } from '@faker-js/faker'
 import { type Page, test as base } from '@playwright/test'
 import { parse } from 'cookie'
 import { createUser } from 'prisma/seed-utils'
@@ -44,29 +45,29 @@ const userCleanup = new Set<string>();
 async function LoginPage({
     page,
     baseURL,
-    user: givenUser,
 }: {
     page: Page
-    baseURL: string | undefined
-    user?: { id: string }
+   baseURL: string | undefined
+
 }) {
-    const user = givenUser ? await prisma.user.findUniqueOrThrow({
-        where: { id: givenUser.id },
-        select: { id: true, name: true, username: true, email: true },
-    }) : await NewUser()
+    const user = await NewUser()
+
     const session = await getSession()
     session.set(authenticator.sessionKey, user.id)
 
     const cookieSession = await commitSession(session)
     const { _session } = parse(cookieSession)
+    console.log('cookieSession:', _session);
 
     const cookie = {
         name: '_session',
+        samesite: 'lax',
         value: _session,
         url: baseURL,
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
     }
+
     page.context().addCookies([
         cookie,
     ])
@@ -89,7 +90,6 @@ test('multi user chat', async ({ browser, page: hikerPage, baseURL }) => {
 
     const hiker = await LoginPage({ page: hikerPage, baseURL })
     const sherpa = await LoginPage({ page: sherpaPage, baseURL })
-    const regexPattern = /\/chats\/[a-zA-Z0-9]+/;
 
     await prisma.sherpa.create({
         data: {
@@ -103,21 +103,25 @@ test('multi user chat', async ({ browser, page: hikerPage, baseURL }) => {
     })
 
     await hikerPage.goto(`users/${ hiker.username }`);
-    await sherpaPage.goto(`users/${ sherpa.username }`);
 
     await hikerPage.goto(`users/${ sherpa.username }`);
     await hikerPage.getByRole('button', { name: /chat/i }).click();
 
-    await expect(hikerPage).toHaveURL(new RegExp(`^${regexPattern.source}$`));
+    await expect(hikerPage).toHaveURL(/.*chats\/[a-zA-Z0-9]+/);
 
-    await hikerPage.getByPlaceholder(/type a message.../).click();
+    await hikerPage.getByPlaceholder(/type a message/i).click();
 
-    // const hikerMessage = faker.lorem.sentence();
-    // await page.getByPlaceholder('Type a message...').fill(hikerMessage);
-    // await page.getByRole('button', { name: 'Send' }).click();
+    const hikerMessage = faker.lorem.sentence();
+    await hikerPage.getByPlaceholder(/type a message/i).fill(hikerMessage);
+    await hikerPage.getByRole('button', { name: /send/i }).click()
+    await expect(hikerPage.getByRole('listitem').filter({hasText: hikerMessage})).toBeVisible();
 
+    await sherpaPage.goto(`users/${ sherpa.username }`);
+    await sherpaPage.getByRole('link', { name: hiker.name }).click();
+
+    await expect(sherpaPage).toHaveURL(/.*chats\/[a-zA-Z0-9]+/);
+    await expect(sherpaPage.getByRole('listitem').filter({hasText: hikerMessage})).toBeVisible();
 })
-
 
 test.afterEach(async () => {
     for (const id of userCleanup) {

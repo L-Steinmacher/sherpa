@@ -1,4 +1,5 @@
-import { DataFunctionArgs, redirect, json } from "@remix-run/node";
+import type { DataFunctionArgs} from "@remix-run/node";
+import { redirect, json } from "@remix-run/node";
 import {
   Form,
   Link,
@@ -8,8 +9,9 @@ import {
   useParams,
 } from "@remix-run/react";
 import invariant from "tiny-invariant";
-import { getUserId } from "~/session.server";
+import { getUserId, requireUserId } from "~/session.server";
 import { useOptionalUser } from "~/utils";
+
 import { prisma } from "~/utils/db.server";
 
 export async function loader({ params, request }: DataFunctionArgs) {
@@ -138,8 +140,7 @@ const createChat = async function({
 }
 
 export async function action({ request, params }: DataFunctionArgs) {
-  const loggedInUserId = await getUserId(request);
-  invariant(loggedInUserId, "user is not logged in");
+  const loggedInUserId = await requireUserId(request);
   const formData = await request.formData();
   const { intent } = Object.fromEntries(formData);
   const username = params.username;
@@ -147,7 +148,10 @@ export async function action({ request, params }: DataFunctionArgs) {
 
   switch (intent) {
     case "create-chat": {
-      return createChat({ loggedInUserId, username })
+      if (loggedInUserId){
+        return createChat({ loggedInUserId, username })
+      }
+      return redirect(`/login?redirect=/users/${username}`)
     }
     default:
       throw new Error(`Unknown intent: ${intent}`);

@@ -1,10 +1,9 @@
 import { createCookieSessionStorage, redirect } from "@remix-run/node";
-import invariant from "tiny-invariant";
 
 import type { User } from "~/models/user.server";
 import { getUserById } from "~/models/user.server";
-
-invariant(process.env.SESSION_SECRET, "SESSION_SECRET must be set");
+import { authenticator } from "./utils/auth.server";
+import { typedBoolean } from "./utils/misc";
 
 export const sessionStorage = createCookieSessionStorage({
   cookie: {
@@ -17,8 +16,6 @@ export const sessionStorage = createCookieSessionStorage({
   },
 });
 
-const USER_SESSION_KEY = "userId";
-
 export async function getSession(request: Request) {
   const cookie = request.headers.get("Cookie");
   return sessionStorage.getSession(cookie);
@@ -28,7 +25,7 @@ export async function getUserId(
   request: Request
 ): Promise<User["id"] | undefined> {
   const session = await getSession(request);
-  const userId = session.get(USER_SESSION_KEY);
+  const userId = session.get(authenticator.sessionKey);
   return userId;
 }
 
@@ -43,15 +40,24 @@ export async function getUser(request: Request) {
 }
 
 export async function requireUserId(
-  request: Request,
-  redirectTo: string = new URL(request.url).pathname
+	request: Request,
+	{ redirectTo }: { redirectTo?: string | null } = {},
 ) {
-  const userId = await getUserId(request);
-  if (!userId) {
-    const searchParams = new URLSearchParams([["redirectTo", redirectTo]]);
-    throw redirect(`/login?${searchParams}`);
-  }
-  return userId;
+	const requestUrl = new URL(request.url)
+	redirectTo =
+		redirectTo === null
+			? null
+			: redirectTo ?? `${requestUrl.pathname}${requestUrl.search}`
+	const loginParams = redirectTo
+		? new URLSearchParams([['redirectTo', redirectTo]])
+		: null
+	const failureRedirect = ['/login', loginParams?.toString()]
+		.filter(typedBoolean)
+		.join('?')
+	const userId = await authenticator.isAuthenticated(request, {
+		failureRedirect,
+	})
+	return userId
 }
 
 export async function requireUser(request: Request) {
@@ -75,7 +81,7 @@ export async function createUserSession({
   redirectTo: string;
 }) {
   const session = await getSession(request);
-  session.set(USER_SESSION_KEY, userId);
+  session.set(authenticator.sessionKey, userId);
   return redirect(redirectTo, {
     headers: {
       "Set-Cookie": await sessionStorage.commitSession(session, {

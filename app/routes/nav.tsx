@@ -1,21 +1,17 @@
 import { Form, Link, useLoaderData } from "@remix-run/react";
-import { useOptionalUser } from "~/utils";
 import type { DataFunctionArgs } from "@remix-run/node"
-import { authenticator } from "~/utils/auth.server";
 import { prisma } from "~/utils/db.server";
-import invariant from "tiny-invariant";
-import { getEnv } from "~/utils/env.server";
+import { authenticator } from "~/utils/auth.server";
 
 export async function loader({ request }: DataFunctionArgs) {
-  const userId = await authenticator.isAuthenticated(request);
+  const userId = authenticator.isAuthenticated(request)
 
-  const user = userId ? await prisma.user.findUnique({ where: { id: userId } }) : null;
-  if (userId && !user) {
-    console.info("Something Fucky happened");
-    await authenticator.logout(request, { redirectTo: "/" });
-  }
+  const user = userId ? await prisma.user.findUnique({
+    where: { id: userId },
+    select: { id: true, username:true, name: true }
+    }) : null;
 
-  return ({ user, ENV: getEnv()})
+  return ({ user })
 };
 
 export function Nav() {
@@ -25,7 +21,7 @@ export function Nav() {
   return (
     <div className="px-5vw py-9 lg:py-12">
       <nav>
-        <ul className="text-primary max-w-8xl  container mx-auto flex items-center justify-between ">
+        <ul className="container flex items-center justify-between mx-auto text-primary max-w-8xl ">
           <li>
             <Link to="/">Home</Link>
           </li>
@@ -43,7 +39,7 @@ export function Nav() {
               <Form action="/logout" method="post">
                 <button
                   type="submit"
-                  className="rounded bg-slate-600 py-2 px-4 text-blue-100 hover:bg-blue-500 active:bg-blue-600"
+                  className="px-4 py-2 text-blue-100 rounded bg-slate-600 hover:bg-blue-500 active:bg-blue-600"
                 >
                   Logout
                 </button>
