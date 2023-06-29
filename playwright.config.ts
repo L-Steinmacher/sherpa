@@ -103,6 +103,8 @@ const config = {
 			: `cross-env PORT=${PORT} npm run dev`,
 		port: Number(PORT),
 		reuseExistingServer: true,
+		stdout: 'pipe',
+		stderr: 'pipe',
 	},
 } satisfies PlaywrightTestConfig;
 
