@@ -114,13 +114,14 @@ test('multi user chat', async ({ browser, page: hikerPage, baseURL }) => {
     const hikerMessage = faker.lorem.sentence();
     await hikerPage.getByPlaceholder(/type a message/i).fill(hikerMessage);
     await hikerPage.getByRole('button', { name: /send/i }).click()
-    await expect(hikerPage).toContain(hikerMessage);
+    await expect(hikerPage.getByRole('listitem').filter({hasText: hikerMessage})).toBeVisible();
 
     await sherpaPage.goto(`users/${ sherpa.username }`);
-    await sherpaPage.getByRole('button', { name: `${hiker.name}` }).click();
+    await sherpaPage.getByRole('link', { name: hiker.name }).click();
 
+    await expect(sherpaPage).toHaveURL(/.*chats\/[a-zA-Z0-9]+/);
+    await expect(sherpaPage.getByRole('listitem').filter({hasText: hikerMessage})).toBeVisible();
 })
-
 
 test.afterEach(async () => {
     for (const id of userCleanup) {
