@@ -4,6 +4,12 @@ node_modules
 /public/build
 /server-build
 .env
-.git
 
-/app/styles/tailwind.css
+/test-results/
+/playwright-report/
+/playwright/.cache/
+/tests/fixtures/email/*.json
+/coverage
+/prisma/migrations
+
+package-lock.json
