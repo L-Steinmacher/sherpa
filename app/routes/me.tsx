@@ -1,7 +1,7 @@
 import type { DataFunctionArgs} from "@remix-run/node";
 import { redirect } from "@remix-run/node";
 import { prisma } from "~/utils/db.server";
-import { authenticator } from "~/utils/auth.server";
+import { authenticator} from "~/utils/auth.server";
 import { requireUserId } from "~/session.server";
 
 export async function loader({ request }: DataFunctionArgs) {

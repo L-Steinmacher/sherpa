@@ -56,17 +56,3 @@ export default function App() {
     </html>
   );
 }
-
-function NoHydrate({
-	getHTML,
-	...rest
-}: { getHTML?: () => string } & JSX.IntrinsicElements['div']) {
-	const id = useId()
-	const [html] = useState(() => {
-		if (typeof document === 'undefined') return getHTML?.() ?? ''
-		const el = document.getElementById(id)
-		if (!el) return getHTML?.() ?? ''
-		return el.innerHTML
-	})
-	return <div {...rest} id={id} dangerouslySetInnerHTML={{ __html: html }} />
-}
