@@ -108,6 +108,7 @@
     "tailwindcss-radix": "2.8.0",
     "ts-node": "^10.9.1",
     "tsconfig-paths": "^4.1.2",
+    "tsx": "^3.12.7",
     "typescript": "^5.0.2",
     "vite": "^4.2.1",
     "vite-tsconfig-paths": "^4.0.7",
@@ -117,6 +118,5 @@
     "node": ">=14"
   },
   "prisma": {
-    "seed": "ts-node --require tsconfig-paths/register prisma/seed.ts"
-  }
+    "seed": "tsx prisma/seed.ts"  }
 }
