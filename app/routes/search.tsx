@@ -8,7 +8,6 @@ import {
   useSubmit,
 } from '@remix-run/react';
 import { useRef } from 'react';
-import invariant from 'tiny-invariant';
 import { prisma } from '~/utils/db.server';
 import { TrailCombobox } from './resources+/trail-combobox';
 
