@@ -1,10 +1,10 @@
 import bcrypt from 'bcryptjs'
-import { createCookieSessionStorage, redirect } from "@remix-run/node";
+import { createCookieSessionStorage } from "@remix-run/node";
 import { Authenticator } from "remix-auth";
 import { FormStrategy } from "remix-auth-form";
 import invariant from "tiny-invariant";
 import { verifyLogin } from "~/models/user.server"
-import { getUserId } from '~/session.server';
+
 
 // The code in this file is borrowed from Kent C. Dodds Rocket Rental App
 
@@ -46,18 +46,6 @@ authenticator.use(
   }),
   FormStrategy.name
 );
-
-export async function requireUserId(
-  request: Request,
-  redirectTo: string = new URL(request.url).pathname
-) {
-  const userId = await getUserId(request);
-  if (!userId) {
-    const searchParams = new URLSearchParams([["redirectTo", redirectTo]]);
-    throw redirect(`/login?${searchParams}`);
-  }
-  return userId;
-}
 
 export async function getPasswordHash(password: string) {
   const hash = await bcrypt.hash(password, 10);

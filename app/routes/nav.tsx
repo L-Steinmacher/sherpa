@@ -1,12 +1,15 @@
 import { Form, Link, useLoaderData } from "@remix-run/react";
 import type { DataFunctionArgs } from "@remix-run/node"
 import { prisma } from "~/utils/db.server";
-import { getUserId } from "~/session.server";
+import { authenticator } from "~/utils/auth.server";
 
 export async function loader({ request }: DataFunctionArgs) {
-  const userId = getUserId(request);
-  
-  const user = userId ? await prisma.user.findUnique({ where: { id: userId }, select: { id: true, username:true, name: true } }) : null;
+  const userId = authenticator.isAuthenticated(request)
+
+  const user = userId ? await prisma.user.findUnique({
+    where: { id: userId },
+    select: { id: true, username:true, name: true }
+    }) : null;
 
   return ({ user })
 };
@@ -14,7 +17,7 @@ export async function loader({ request }: DataFunctionArgs) {
 export function Nav() {
   const data = useLoaderData<typeof loader>();
   const { user } = data;
-  console.log(JSON.stringify(data, null, 2))
+
   return (
     <div className="px-5vw py-9 lg:py-12">
       <nav>

@@ -1,6 +1,5 @@
 import type { DataFunctionArgs } from "@remix-run/node";
-import { requireUserId } from "~/utils/auth.server";
-
+import { requireUserId } from "~/session.server";
 import { EVENTS, chatEmitter } from "~/utils/chat.server";
 import { prisma } from "~/utils/db.server";
 import { eventStream } from "~/utils/event-stream.server";
