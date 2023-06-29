@@ -45,19 +45,19 @@ const userCleanup = new Set<string>();
 async function LoginPage({
     page,
     baseURL,
+    user: givenUser,
 }: {
     page: Page
-   baseURL: string | undefined
-
+    baseURL: string | undefined
+    user?: { id: string }
 }) {
-    const user = await NewUser()
+    const user = givenUser ? await prisma.user.findUniqueOrThrow({ where: { id: givenUser.id } }) : await NewUser()
 
     const session = await getSession()
     session.set(authenticator.sessionKey, user.id)
 
     const cookieSession = await commitSession(session)
     const { _session } = parse(cookieSession)
-    console.log('cookieSession:', _session);
 
     const cookie = {
         name: '_session',
@@ -90,6 +90,13 @@ test('multi user chat', async ({ browser, page: hikerPage, baseURL }) => {
 
     const hiker = await LoginPage({ page: hikerPage, baseURL })
     const sherpa = await LoginPage({ page: sherpaPage, baseURL })
+    // This is for type checking only
+    if (!hiker || !hiker.name) {
+        throw new Error('Hiker or hiker name is null');
+    }
+    if (!sherpa || !sherpa.name) {
+        throw new Error('Sherpa or sherpa name is null');
+    }
 
     await prisma.sherpa.create({
         data: {
@@ -101,6 +108,7 @@ test('multi user chat', async ({ browser, page: hikerPage, baseURL }) => {
             userId: hiker.id,
         },
     })
+
 
     await hikerPage.goto(`users/${ hiker.username }`);
 
@@ -117,7 +125,7 @@ test('multi user chat', async ({ browser, page: hikerPage, baseURL }) => {
     await expect(hikerPage.getByRole('listitem').filter({hasText: hikerMessage})).toBeVisible();
 
     await sherpaPage.goto(`users/${ sherpa.username }`);
-    await sherpaPage.getByRole('link', { name: hiker.name }).click();
+    await sherpaPage.getByRole('link', { name: new RegExp(hiker.name, 'i') }).click();
 
     await expect(sherpaPage).toHaveURL(/.*chats\/[a-zA-Z0-9]+/);
     await expect(sherpaPage.getByRole('listitem').filter({hasText: hikerMessage})).toBeVisible();

@@ -4,7 +4,7 @@ import { prisma } from "~/utils/db.server";
 import { authenticator } from "~/utils/auth.server";
 
 export async function loader({ request }: DataFunctionArgs) {
-  const userId = authenticator.isAuthenticated(request)
+  const userId = await authenticator.isAuthenticated(request)
 
   const user = userId ? await prisma.user.findUnique({
     where: { id: userId },
