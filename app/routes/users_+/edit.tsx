@@ -21,12 +21,6 @@ export async function loader({ request }: DataFunctionArgs) {
   return json({ user });
 }
 
-export async function action({ request }: DataFunctionArgs) {
-  const formData = await request.formData();
-
-  return 0;
-}
-
 export default function UserEditRoute() {
   return (
     <div>

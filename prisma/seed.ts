@@ -72,7 +72,7 @@ async function seed() {
   console.time("Created Admins... 👩‍💼");
   const totalAdmins = Math.floor(totalUsers * 0.1);
   const adminIds = users.slice(0, totalAdmins).map((user) => user.id);
-  const admins = Promise.all(
+  Promise.all(
     adminIds.map(async (id) => {
       const admin = await prisma.admin.create({
         data: {
@@ -119,7 +119,7 @@ async function seed() {
         },
       });
       const totalSherpaTrails = faker.datatype.number({ min: 1, max: 10 });
-      const sherpaTrails = await Promise.all(
+      await Promise.all(
         Array.from({ length: totalSherpaTrails }, async () => {
           const trailId = faker.helpers.arrayElement(allTrails).id;
           const newSherpaTrail = await prisma.sherpaTrail.create({
@@ -138,7 +138,7 @@ async function seed() {
   console.timeEnd(`Created ${totalSherpas} Sherpas... 🧗‍♀️`);
 
   console.time("Created Hikes... 🥾");
-  const hikes = await Promise.all(
+  await Promise.all(
     await (
       await hikers
     ).map(async (hiker) => {
@@ -234,7 +234,7 @@ async function seed() {
 
   // console time Chats
   console.time("Created Chats... 💬");
-  const chats = await Promise.all(
+  await Promise.all(
     adventures.map(async (adventure) => {
       const createdAt = faker.date.between(
         adventure.createdAt.getTime() - oneDay,
@@ -279,7 +279,7 @@ async function seed() {
     const today = new Date();
     return adventure.endDate.getTime() < today.getTime();
   });
-  const reviews = await Promise.all(
+  await Promise.all(
     adventuresReadyToReview.map(async (adventure) => {
       const createdAt = faker.date.between(
         adventure.endDate.getTime() - oneDay,

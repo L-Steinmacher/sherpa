@@ -1,4 +1,4 @@
-import { DataFunctionArgs, json, SerializeFrom } from '@remix-run/node';
+import { type DataFunctionArgs, json, type SerializeFrom } from '@remix-run/node';
 import { useFetcher } from '@remix-run/react';
 import { useCombobox } from 'downshift';
 import { useId, useState } from 'react';
