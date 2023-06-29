@@ -49,7 +49,6 @@ export async function action({ request }: ActionArgs) {
       { status: 400 }
     );
   }
-  console.log(`login!!!!!!!!!!!!!!!!!!!!!   ${redirectTo}`)
   return createUserSession({
     request,
     userId: user.id,
