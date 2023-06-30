@@ -21,6 +21,7 @@ export async function loader({ request }: DataFunctionArgs) {
 
 export default function HikesRoute() {
   const data = useLoaderData<typeof loader>();
+  const hikes = data.hikes;
 
   return (
     <div>
@@ -28,7 +29,7 @@ export default function HikesRoute() {
       <pre>{JSON.stringify(data, null, 2)}</pre>
       <div className="flex gap-12 ">
         <ul>
-          {data.hikes.map((hike) => (
+          {hikes.map((hike) => (
             <li key={hike.id}>
               <Link to={`/hike/${hike.id}`}>{hike.id}</Link>
             </li>
