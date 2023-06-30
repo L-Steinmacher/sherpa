@@ -1,13 +1,13 @@
 import { type DataFunctionArgs, json, type SerializeFrom } from '@remix-run/node';
 import { useFetcher } from '@remix-run/react';
 import { useCombobox } from 'downshift';
-import { useId, useState } from 'react';
 import clsx from 'clsx';
 import { useSpinDelay } from 'spin-delay';
 import invariant from 'tiny-invariant';
 
-import { prisma } from '~/utils/db.server';
-import { Spinner } from '~/components/spinner';
+import { prisma } from '~/utils/db.server.ts';
+import { Spinner } from '~/components/spinner.tsx';
+import { useId, useState } from 'react';
 
 export async function loader({ request }: DataFunctionArgs) {
   const url = new URL(request.url);
@@ -85,7 +85,7 @@ export function TrailCombobox({
       <div className="relative">
         <input
           {...cb.getInputProps({
-            className: clsx('text-lg w-full border border-gray-500 px-2 py-1', {
+            className: clsx.default('text-lg w-full border border-gray-500 px-2 py-1', {
               'rounded-t rounded-b-0': displayMenu,
               rounded: !displayMenu,
             }),
@@ -97,16 +97,16 @@ export function TrailCombobox({
       </div>
       <ul
         {...cb.getMenuProps({
-          className: clsx(
+          className: clsx.clsx(
             'absolute z-10 bg-white shadow-lg rounded-b w-full border border-t-0 border-gray-500 max-h-[180px] overflow-scroll',
             { hidden: !displayMenu },
           ),
         })}
       >
         {displayMenu
-          ? trails.map((trail, index) => (
+          ? trails.map((trail: Trail, index: number) => (
               <li
-                className={clsx('cursor-pointer py-1 px-2', {
+                className={clsx.clsx('cursor-pointer py-1 px-2', {
                   'bg-green-200': cb.highlightedIndex === index,
                 })}
                 key={trail.id}

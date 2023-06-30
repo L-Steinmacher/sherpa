@@ -1,7 +1,7 @@
 import { Form, Link, useLoaderData } from "@remix-run/react";
 import type { DataFunctionArgs } from "@remix-run/node"
-import { prisma } from "~/utils/db.server";
-import { authenticator } from "~/utils/auth.server";
+import { prisma } from "~/utils/db.server.ts";
+import { authenticator } from "~/utils/auth.server.ts";
 
 export async function loader({ request }: DataFunctionArgs) {
   const userId = await authenticator.isAuthenticated(request)

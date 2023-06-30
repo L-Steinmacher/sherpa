@@ -2,7 +2,7 @@ import type { DataFunctionArgs} from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { useCatch, useLoaderData } from "@remix-run/react";
 import invariant from "tiny-invariant";
-import { prisma } from "~/utils/db.server";
+import { prisma } from "~/utils/db.server.ts";
 
 export async function loader(params: DataFunctionArgs) {
   const { hikeId } = params.params;

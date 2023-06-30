@@ -8,8 +8,8 @@ import {
   useSubmit,
 } from '@remix-run/react';
 import { useRef } from 'react';
-import { prisma } from '~/utils/db.server';
-import { TrailCombobox } from './resources+/trail-combobox';
+import { prisma } from '~/utils/db.server.ts';
+import { TrailCombobox } from './resources+/trail-combobox.tsx';
 
 export async function loader({ request }: DataFunctionArgs) {
   const searchParams = new URL(request.url).searchParams;

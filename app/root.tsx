@@ -14,8 +14,8 @@ import {
 } from "@remix-run/react";
 
 import tailwindStylesheetUrl from "./styles/tailwind.css";
-import { getUser } from "./session.server";
-import { Nav } from "./routes/nav";
+import { getUser } from "./session.server.ts";
+import { Nav } from "./routes/nav.tsx";
 
 export const links: LinksFunction = () => {
   return [{ rel: "stylesheet", href: tailwindStylesheetUrl }];

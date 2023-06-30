@@ -2,9 +2,9 @@
 import { faker } from '@faker-js/faker'
 import { type Page, test as base } from '@playwright/test'
 import { parse } from 'cookie'
-import { createUser } from 'prisma/seed-utils'
-import { authenticator, commitSession, getPasswordHash, getSession } from '~/utils/auth.server'
-import { prisma } from '~/utils/db.server'
+import { createUser } from 'prisma/seed-utils.ts'
+import { authenticator, commitSession, getPasswordHash, getSession } from '~/utils/auth.server.ts'
+import { prisma } from '~/utils/db.server.ts'
 
 export const test = base.extend<{
     login: (user?: { id: string }) => ReturnType<typeof LoginPage>
