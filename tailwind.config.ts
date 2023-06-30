@@ -1,4 +1,5 @@
-const defaultTheme = require('tailwindcss/defaultTheme')
+import type { Config } from 'tailwindcss'
+import tailwindcssRadix from 'tailwindcss-radix'
 
 /** @type {import('tailwindcss').Config} */
 module.exports = {
@@ -7,5 +8,5 @@ module.exports = {
 	theme: {
 		xtend: {}
 	},
-	plugins: [ require('tailwindcss-radix')],
-}
+	plugins: [ tailwindcssRadix ],
+} satisfies Config
