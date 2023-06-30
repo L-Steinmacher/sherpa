@@ -1,9 +1,9 @@
 import { faker } from "@faker-js/faker";
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
-import { typedBoolean } from "~/utils/misc";
+import { typedBoolean } from "~/utils/misc.ts";
 
-import { createUser, createContactInfo, createPassword, createTrail } from "./seed-utils";
+import { createUser, createContactInfo, createPassword, createTrail } from "./seed-utils.ts";
 
 const prisma = new PrismaClient();
 

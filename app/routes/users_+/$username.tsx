@@ -9,10 +9,10 @@ import {
   useParams,
 } from "@remix-run/react";
 import invariant from "tiny-invariant";
-import { getUserId, requireUserId } from "~/session.server";
-import { useOptionalUser } from "~/utils";
+import { getUserId, requireUserId } from "~/session.server.ts";
+import { useOptionalUser } from "~/utils.ts";
 
-import { prisma } from "~/utils/db.server";
+import { prisma } from "~/utils/db.server.ts";
 
 export async function loader({ params, request }: DataFunctionArgs) {
   const isLoggedIn = await getUserId(request);

@@ -1,7 +1,7 @@
 import type { DataFunctionArgs } from "@remix-run/node";
 import { redirect } from "@remix-run/node";
 import invariant from "tiny-invariant";
-import { prisma } from "~/utils/db.server";
+import { prisma } from "~/utils/db.server.ts";
 
 export async function loader({ params }: DataFunctionArgs) {
   invariant(params.id, "id is not defined");

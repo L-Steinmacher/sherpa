@@ -1,8 +1,8 @@
 import type { DataFunctionArgs } from "@remix-run/node";
-import { requireUserId } from "~/session.server";
-import { EVENTS, chatEmitter } from "~/utils/chat.server";
-import { prisma } from "~/utils/db.server";
-import { eventStream } from "~/utils/event-stream.server";
+import { requireUserId } from "~/session.server.ts";
+import { EVENTS, chatEmitter } from "~/utils/chat.server.ts";
+import { prisma } from "~/utils/db.server.ts";
+import { eventStream } from "~/utils/event-stream.server.ts";
 
 export type Message = {
   id: string;

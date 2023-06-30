@@ -3,12 +3,12 @@ import { json } from '@remix-run/node';
 import { Link, useCatch, useFetcher, useLoaderData, useParams } from '@remix-run/react';
 import { useEffect, useState } from 'react';
 import invariant from 'tiny-invariant';
-import { chatEmitter, EVENTS } from '~/utils/chat.server';
-import { prisma } from '~/utils/db.server';
-import { useEventSource } from '~/utils/hooks';
-import type { Message, NewMessageChange } from './$chatId.events';
-import { isMessageChange } from './$chatId.events';
-import { requireUserId } from '~/session.server';
+import { chatEmitter, EVENTS } from '~/utils/chat.server.ts';
+import { prisma } from '~/utils/db.server.ts';
+import { useEventSource } from '~/utils/hooks.ts';
+import type { Message, NewMessageChange } from './$chatId.events.ts';
+import { isMessageChange } from './$chatId.events.ts';
+import { requireUserId } from '~/session.server.ts';
 
 
 export async function loader({ request, params }: DataFunctionArgs) {

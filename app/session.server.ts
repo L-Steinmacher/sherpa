@@ -1,9 +1,9 @@
 import { createCookieSessionStorage, redirect } from "@remix-run/node";
 
-import type { User } from "~/models/user.server";
-import { getUserById } from "~/models/user.server";
-import { authenticator } from "./utils/auth.server";
-import { typedBoolean } from "./utils/misc";
+import type { User } from "~/models/user.server.ts";
+import { getUserById } from "~/models/user.server.ts";
+import { authenticator } from "./utils/auth.server.ts";
+import { typedBoolean } from "./utils/misc.ts";
 
 export const sessionStorage = createCookieSessionStorage({
   cookie: {
